@@ -17,6 +17,7 @@ class AppController{
 
     routes(){
         this.express.use(require("./routes/clienteRouter"))
+        this.express.use(require("./routes/usuarioRouter"))
     }
 }
 
