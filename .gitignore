@@ -1,0 +1,9 @@
+.idea
+node_modules
+.env
+.env.test
+.env.production
+package-lock.json
+__tests__/database.sqlite
+
+tmp/uploads/*
