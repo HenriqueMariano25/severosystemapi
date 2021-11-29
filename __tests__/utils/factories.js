@@ -1,5 +1,5 @@
 const {factory} = require("factory-girl")
-const { Cliente, Usuario } = require("../../src/models")
+const { Cliente, Usuario, Perito } = require("../../src/models")
 const faker = require("faker")
 
 faker.locale = "pt_BR"
@@ -19,6 +19,12 @@ factory.define("Usuario", Usuario, async () => {
         nome: faker.name.findName(),
         senha: faker.internet.password(),
         usuario: faker.internet.domainName(),
+    }
+})
+
+factory.define("Perito", Perito, async () =>{
+    return {
+        nome: faker.name.findName(),
     }
 })
 
