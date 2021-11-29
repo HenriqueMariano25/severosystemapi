@@ -1,10 +1,10 @@
 const {factory} = require("factory-girl")
-const { Cliente, Usuario, Perito } = require("../../src/models")
+const {Cliente, Usuario, Perito, Plano} = require("../../src/models")
 const faker = require("faker")
 
 faker.locale = "pt_BR"
 
-factory.define("Cliente", Cliente, async () =>{
+factory.define("Cliente", Cliente, async () => {
     return {
         nome: faker.name.findName(),
         email: faker.internet.email(),
@@ -22,9 +22,16 @@ factory.define("Usuario", Usuario, async () => {
     }
 })
 
-factory.define("Perito", Perito, async () =>{
+factory.define("Perito", Perito, async () => {
     return {
         nome: faker.name.findName(),
+    }
+})
+
+factory.define("Plano", Plano, async () => {
+    return {
+        descricao: faker.company.bs(),
+        valor: faker.finance.amount()
     }
 })
 
