@@ -6,11 +6,18 @@ faker.locale = "pt_BR"
 
 factory.define("Cliente", Cliente, async () => {
     return {
-        nome: faker.name.findName(),
+        nome_razao_social: faker.name.findName(),
         email: faker.internet.email(),
         cpf_cnpj: faker.datatype.number(),
         cnh: faker.datatype.number(),
         telefone: faker.phone.phoneNumberFormat(),
+        rua: faker.address.streetName(),
+        cidade: faker.address.cityName(),
+        bairro: faker.address.cityName(),
+        numero: faker.datatype.number(),
+        uf: faker.address.stateAbbr(),
+        cep: faker.address.zipCode(),
+        complemento: faker.address.secondaryAddress()
     }
 })
 

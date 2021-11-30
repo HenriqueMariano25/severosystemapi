@@ -16,11 +16,18 @@ describe("CRUD", () => {
         const resposta = await request(app)
             .post("/cliente")
             .send({
-                nome: "Mesa",
-                email: "teste@teste.com",
-                cpf_cnpj: '123456789',
-                cnh: '123456789',
-                telefone: "22992299229",
+                nome_razao_social: faker.name.findName(),
+                email: faker.internet.email(),
+                cpf_cnpj: faker.datatype.number(),
+                cnh: faker.datatype.number(),
+                telefone: faker.phone.phoneNumberFormat(),
+                rua: faker.address.streetName(),
+                cidade: faker.address.cityName(),
+                bairro: faker.address.cityName(),
+                numero: faker.datatype.number(),
+                uf: faker.address.stateAbbr(),
+                cep: faker.address.zipCode(),
+                complemento: faker.address.secondaryAddress()
             })
 
         expect(resposta.status).toBe(200)
@@ -40,11 +47,18 @@ describe("CRUD", () => {
         const resposta = await request(app)
             .put(`/cliente/${cliente.id}`)
             .send({
-                nome: faker.name.findName(),
+                nome_razao_social: faker.name.findName(),
                 email: faker.internet.email(),
                 cpf_cnpj: faker.datatype.number(),
                 cnh: faker.datatype.number(),
                 telefone: faker.phone.phoneNumberFormat(),
+                rua: faker.address.streetName(),
+                cidade: faker.address.cityName(),
+                bairro: faker.address.cityName(),
+                numero: faker.datatype.number(),
+                uf: faker.address.stateAbbr(),
+                cep: faker.address.zipCode(),
+                complemento: faker.address.secondaryAddress()
             })
 
         expect(resposta.status).toBe(200)

@@ -9,7 +9,7 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true
       },
-      nome:{
+      nome_razao_social:{
         type: Sequelize.STRING,
         allowNull:false,
       },
@@ -22,6 +22,34 @@ module.exports = {
         allowNull:false,
       },
       cnh:{
+        type: Sequelize.STRING,
+        allowNull:false,
+      },
+      rua:{
+        type: Sequelize.STRING,
+        allowNull:false,
+      },
+      bairro:{
+        type: Sequelize.STRING,
+        allowNull:false,
+      },
+      cidade:{
+        type: Sequelize.STRING,
+        allowNull:false,
+      },
+      uf:{
+        type: Sequelize.STRING,
+        allowNull:false,
+      },
+      cep:{
+        type: Sequelize.STRING,
+        allowNull:false,
+      },
+      numero:{
+        type: Sequelize.STRING,
+        allowNull:false,
+      },
+      complemento:{
         type: Sequelize.STRING,
         allowNull:false,
       },

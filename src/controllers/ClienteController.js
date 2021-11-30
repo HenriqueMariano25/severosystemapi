@@ -2,23 +2,23 @@ const {Cliente} = require("../models")
 
 class ClienteController {
     async cadastrar(req, res) {
-        let {nome, email, cpf_cnpj, telefone, cnh} = req.body
+        let {nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento} = req.body
 
-        if (!nome || !email || !cpf_cnpj || !telefone || !cnh)
+        if (!nome_razao_social || !email || !cpf_cnpj || !telefone || !cnh)
             return res.status(400).json({message: "Dados obrigatorios faltando"})
 
-        let cliente = await Cliente.create({nome, email, cpf_cnpj, telefone, cnh})
+        let cliente = await Cliente.create({nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento})
 
         return res.status(200).json({cliente: cliente})
     }
 
     async editar(req, res) {
-        let {nome, email, cpf_cnpj, telefone, cnh} = req.body
+        let {nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento} = req.body
         let {id} = req.params
 
         let cliente = await Cliente.findOne({where: {id}})
 
-        await cliente.update({nome, email, cpf_cnpj, telefone, cnh})
+        await cliente.update({nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento})
 
         return res.status(200).json({cliente: cliente})
     }
