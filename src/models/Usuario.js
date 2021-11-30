@@ -7,6 +7,9 @@ module.exports = (sequelize, DataTypes) => {
             senha: DataTypes.VIRTUAL,
             senha_hash: DataTypes.STRING,
             usuario: DataTypes.STRING,
+            cargo: DataTypes.STRING,
+            data_admissao: DataTypes.DATE,
+
         },
         {
             freezeTableName: true,
@@ -19,6 +22,13 @@ module.exports = (sequelize, DataTypes) => {
             }
         }
     )
+
+    Usuario.associate = models => {
+        Usuario.belongsTo(models.StatuUsuario, {
+            foreignKey: 'statu_usuario_id',
+        })
+    }
+
 
     Usuario.prototype.verificarSenha = function (senha) {
         return bcrypt.compare(senha, this.senha_hash)

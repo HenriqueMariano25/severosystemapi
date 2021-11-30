@@ -1,5 +1,5 @@
 const {factory} = require("factory-girl")
-const {Cliente, Usuario, Perito, Plano, Veiculo} = require("../../src/models")
+const {Cliente, Usuario, Perito, Plano, Veiculo, StatuUsuario} = require("../../src/models")
 const faker = require("faker")
 
 faker.locale = "pt_BR"
@@ -21,11 +21,22 @@ factory.define("Cliente", Cliente, async () => {
     }
 })
 
+factory.define("StatuUsuario", StatuUsuario, async () => {
+    return {
+        descricao: "Ativo"
+    }
+})
+
 factory.define("Usuario", Usuario, async () => {
+    let statuUsuario = await factory.create('StatuUsuario')
+
     return {
         nome: faker.name.findName(),
         senha: faker.internet.password(),
         usuario: faker.internet.domainName(),
+        cargo: 'Gerente',
+        data_admissao: faker.date.past(),
+        statu_usuario_id: statuUsuario.id
     }
 })
 

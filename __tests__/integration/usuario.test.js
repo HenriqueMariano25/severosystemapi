@@ -12,12 +12,17 @@ describe("CRUD", () => {
     })
 
     it("deve criar usuario com dados válidos", async () => {
+        let statuUsuario = await factory.create('StatuUsuario')
+
         const resposta = await request(app)
             .post("/usuario")
             .send({
                 nome: faker.name.findName(),
                 senha: faker.internet.password(),
                 usuario: faker.internet.domainName(),
+                cargo: 'Gerente',
+                data_admissao: faker.date.past(),
+                statu_usuario_id: statuUsuario.id
             })
 
         expect(resposta.status).toBe(200)

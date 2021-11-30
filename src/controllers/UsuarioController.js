@@ -3,9 +3,9 @@ const {Op} = require("sequelize");
 
 class UsuarioController {
     async cadastrar(req, res) {
-        const {nome, senha, usuario: novoUsuario} = req.body
+        const {nome, senha, usuario: novoUsuario, cargo, data_admissao } = req.body
 
-        if (!nome || !senha || !novoUsuario)
+        if (!nome || !senha || !novoUsuario || !cargo || !data_admissao)
             return res.status(400).json({message: "Dados faltando para realizar o cadastro!"})
 
         const usuarioCriado = await Usuario.findOne({where: {usuario: novoUsuario}})
@@ -16,7 +16,9 @@ class UsuarioController {
         const usuario = await Usuario.create({
             nome,
             senha,
-            usuario: novoUsuario
+            usuario: novoUsuario,
+            cargo,
+            data_admissao
         })
 
         return res.status(200).json({usuario})
