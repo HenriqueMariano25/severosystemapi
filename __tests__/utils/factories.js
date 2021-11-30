@@ -1,5 +1,5 @@
 const {factory} = require("factory-girl")
-const {Cliente, Usuario, Perito, Plano} = require("../../src/models")
+const {Cliente, Usuario, Perito, Plano, Veiculo} = require("../../src/models")
 const faker = require("faker")
 
 faker.locale = "pt_BR"
@@ -39,6 +39,25 @@ factory.define("Plano", Plano, async () => {
     return {
         descricao: faker.company.bs(),
         valor: faker.finance.amount()
+    }
+})
+
+factory.define("Veiculo", Veiculo, async () => {
+    return {
+        placa: faker.vehicle.vrm(),
+        ano: faker.datatype.number(),
+        marca_modelo: faker.vehicle.vehicle(),
+        hodometro: faker.vehicle.vin(),
+        chassi_bin: faker.vehicle.vin(),
+        chassi_atual: faker.vehicle.vin(),
+        motor_bin: faker.vehicle.vin(),
+        motor_atual: faker.vehicle.vin(),
+        cidade: faker.address.cityName(),
+        cor_bin: faker.vehicle.color(),
+        cor_atual: faker.vehicle.color(),
+        uf: faker.address.stateAbbr(),
+        combustivel: faker.vehicle.fuel(),
+        renavam: faker.vehicle.vin()
     }
 })
 
