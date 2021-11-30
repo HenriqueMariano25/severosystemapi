@@ -21,7 +21,7 @@ describe("CRUD", () => {
                 senha: faker.internet.password(),
                 usuario: faker.internet.domainName(),
                 cargo: 'Gerente',
-                data_admissao: faker.date.past(),
+                data_admissao: '10/10/2010',
                 statu_usuario_id: statuUsuario.id
             })
 
@@ -56,12 +56,16 @@ describe("CRUD", () => {
 
     it("deve editar um usuario já criado", async () => {
         const usuario = await factory.create("Usuario")
+        let statuUsuario = await factory.create('StatuUsuario')
 
         const resposta = await request(app)
-            .put("/usuario")
+            .put(`/usuario/${usuario.id}`)
             .send({
-                id: usuario.id,
                 nome: faker.name.findName(),
+                usuario: faker.internet.domainName(),
+                cargo: 'Gerente',
+                data_admissao: '10/10/2010',
+                statu_usuario_id: statuUsuario.id
             })
             .set("Authorization", `Bearer ${usuario.gerarToken()}`)
 

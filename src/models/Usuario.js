@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             senha_hash: DataTypes.STRING,
             usuario: DataTypes.STRING,
             cargo: DataTypes.STRING,
-            data_admissao: DataTypes.DATE,
+            data_admissao: DataTypes.STRING,
 
         },
         {

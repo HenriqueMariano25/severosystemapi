@@ -5,13 +5,16 @@ routes.get("/usuario/login/", UsuarioController.login)
 
 routes.post("/usuario",UsuarioController.cadastrar)
 
-routes.put("/usuario", UsuarioController.editar)
+routes.put("/usuario/:id", UsuarioController.editar)
 
 routes.delete("/usuario/:id", UsuarioController.deletar)
+
+routes.get("/usuario/status_usuario", UsuarioController.buscarStatuUsuario)
 
 routes.get("/usuario/:id", UsuarioController.buscar)
 
 routes.get("/usuarios", UsuarioController.buscarTodos)
+
 
 
 

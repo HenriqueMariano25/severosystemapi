@@ -35,7 +35,7 @@ factory.define("Usuario", Usuario, async () => {
         senha: faker.internet.password(),
         usuario: faker.internet.domainName(),
         cargo: 'Gerente',
-        data_admissao: faker.date.past(),
+        data_admissao: '10/10/2010',
         statu_usuario_id: statuUsuario.id
     }
 })

@@ -1,9 +1,9 @@
-const { Usuario } = require("../models")
+const { Usuario, StatuUsuario} = require("../models")
 const {Op} = require("sequelize");
 
 class UsuarioController {
     async cadastrar(req, res) {
-        const {nome, senha, usuario: novoUsuario, cargo, data_admissao } = req.body
+        const {nome, senha, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id } = req.body
 
         if (!nome || !senha || !novoUsuario || !cargo || !data_admissao)
             return res.status(400).json({message: "Dados faltando para realizar o cadastro!"})
@@ -18,7 +18,8 @@ class UsuarioController {
             senha,
             usuario: novoUsuario,
             cargo,
-            data_admissao
+            data_admissao,
+            statu_usuario_id
         })
 
         return res.status(200).json({usuario})
@@ -26,14 +27,15 @@ class UsuarioController {
 
 
     async editar(req, res) {
-        const {id, nome} = req.body
+        const { nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id} = req.body
+        const {id} = req.params
 
         const usuario = await Usuario.findOne({where: {id}})
 
         if (!usuario)
             return res.status(400).json({message: "Usuário não encontrado"})
 
-        await usuario.update({nome})
+        await usuario.update({nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id})
 
         return res.status(200).json({usuario})
     }
@@ -64,6 +66,12 @@ class UsuarioController {
         let usuarios = await Usuario.findAll()
 
         return res.status(200).json({usuarios: usuarios})
+    }
+
+    async buscarStatuUsuario(req, res) {
+        let statusUsuario = await StatuUsuario.findAll()
+
+        return res.status(200).json({statusUsuario: statusUsuario})
     }
 
     async login(req, res) {

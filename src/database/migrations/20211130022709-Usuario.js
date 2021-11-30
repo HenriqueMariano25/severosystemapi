@@ -29,7 +29,7 @@ module.exports = {
         allowNull: false,
       },
       data_admissao: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       senha_hash: {
