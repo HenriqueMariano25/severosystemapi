@@ -1,5 +1,5 @@
 const {factory} = require("factory-girl")
-const {Cliente, Usuario, Perito, Plano, Veiculo, StatuUsuario} = require("../../src/models")
+const {Cliente, Usuario, Perito, Plano, Veiculo, StatuUsuario, Questao, Gravidade, TipoVeiculo} = require("../../src/models")
 const faker = require("faker")
 
 faker.locale = "pt_BR"
@@ -69,6 +69,33 @@ factory.define("Veiculo", Veiculo, async () => {
         uf: faker.address.stateAbbr(),
         combustivel: faker.vehicle.fuel(),
         renavam: faker.vehicle.vin()
+    }
+})
+factory.define("Gravidade", Gravidade, async () => {
+    return {
+        descricao: 'normal',
+        cor: 'green',
+        icone: 'ok',
+    }
+})
+
+factory.define("TipoVeiculo", TipoVeiculo, async () => {
+    return {
+        descricao: 'carro',
+        icone: 'car',
+    }
+})
+
+factory.define("Questao", Questao, async () => {
+    const gravidade = await factory.create('Gravidade')
+    const tipoVeiculo = await factory.create('TipoVeiculo')
+
+    return {
+        titulo: faker.vehicle.vrm(),
+        componente: 'Vidro',
+        situacao_observada: 'Vidro quebrado',
+        gravidade_id: gravidade.id,
+        tipo_veiculo_id: tipoVeiculo.id,
     }
 })
 
