@@ -13,6 +13,7 @@ describe("CRUD", () => {
 
     it("deve criar usuario com dados válidos", async () => {
         let statuUsuario = await factory.create('StatuUsuario')
+        let tipoUsuario = await factory.create('TipoUsuario')
 
         const resposta = await request(app)
             .post("/usuario")
@@ -22,7 +23,8 @@ describe("CRUD", () => {
                 usuario: faker.internet.domainName(),
                 cargo: 'Gerente',
                 data_admissao: '10/10/2010',
-                statu_usuario_id: statuUsuario.id
+                statu_usuario_id: statuUsuario.id,
+                tipo_usuario_id: tipoUsuario.id
             })
 
         expect(resposta.status).toBe(200)
@@ -57,6 +59,7 @@ describe("CRUD", () => {
     it("deve editar um usuario já criado", async () => {
         const usuario = await factory.create("Usuario")
         let statuUsuario = await factory.create('StatuUsuario')
+        let tipoUsuario = await factory.create('TipoUsuario')
 
         const resposta = await request(app)
             .put(`/usuario/${usuario.id}`)
@@ -65,7 +68,8 @@ describe("CRUD", () => {
                 usuario: faker.internet.domainName(),
                 cargo: 'Gerente',
                 data_admissao: '10/10/2010',
-                statu_usuario_id: statuUsuario.id
+                statu_usuario_id: statuUsuario.id,
+                tipo_usuario_id: tipoUsuario.id
             })
             .set("Authorization", `Bearer ${usuario.gerarToken()}`)
 

@@ -3,9 +3,9 @@ const {Op} = require("sequelize");
 
 class UsuarioController {
     async cadastrar(req, res) {
-        const {nome, senha, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id } = req.body
+        const {nome, senha, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id, tipo_usuario_id } = req.body
 
-        if (!nome || !senha || !novoUsuario || !cargo || !data_admissao)
+        if (!nome || !senha || !novoUsuario || !cargo || !data_admissao || !tipo_usuario_id)
             return res.status(400).json({message: "Dados faltando para realizar o cadastro!"})
 
         const usuarioCriado = await Usuario.findOne({where: {usuario: novoUsuario}})
@@ -19,7 +19,8 @@ class UsuarioController {
             usuario: novoUsuario,
             cargo,
             data_admissao,
-            statu_usuario_id
+            statu_usuario_id,
+            tipo_usuario_id
         })
 
         return res.status(200).json({usuario})
@@ -27,7 +28,7 @@ class UsuarioController {
 
 
     async editar(req, res) {
-        const { nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id} = req.body
+        const { nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id, tipo_usuario_id} = req.body
         const {id} = req.params
 
         const usuario = await Usuario.findOne({where: {id}})
@@ -35,7 +36,7 @@ class UsuarioController {
         if (!usuario)
             return res.status(400).json({message: "Usuário não encontrado"})
 
-        await usuario.update({nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id})
+        await usuario.update({nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id, tipo_usuario_id})
 
         return res.status(200).json({usuario})
     }

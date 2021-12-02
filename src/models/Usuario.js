@@ -27,6 +27,9 @@ module.exports = (sequelize, DataTypes) => {
         Usuario.belongsTo(models.StatuUsuario, {
             foreignKey: 'statu_usuario_id',
         })
+        Usuario.belongsTo(models.TipoUsuario, {
+            foreignKey: 'tipo_usuario_id',
+        })
     }
 
 
