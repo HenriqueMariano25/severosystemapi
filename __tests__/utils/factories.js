@@ -1,5 +1,18 @@
 const {factory} = require("factory-girl")
-const {Cliente, Usuario, Perito, Plano, Veiculo, StatuUsuario, Questao, Gravidade, TipoVeiculo, TipoUsuario} = require("../../src/models")
+const {
+    Cliente,
+    Usuario,
+    Perito,
+    Plano,
+    Veiculo,
+    StatuUsuario,
+    Questao,
+    Gravidade,
+    TipoVeiculo,
+    TipoUsuario,
+    TipoServico,
+    Servico
+} = require("../../src/models")
 const faker = require("faker")
 
 faker.locale = "pt_BR"
@@ -104,6 +117,21 @@ factory.define("Questao", Questao, async () => {
         situacao_observada: 'Vidro quebrado',
         gravidade_id: gravidade.id,
         tipo_veiculo_id: tipoVeiculo.id,
+    }
+})
+
+factory.define("TipoServico", TipoServico, async () => {
+    return {
+        descricao: 'vistoria cautelar',
+    }
+})
+
+factory.define("Servico", Servico, async () => {
+    const tipoServico = await factory.create('TipoServico')
+
+    return {
+        valor: faker.finance.amount(),
+        tipo_servico_id: tipoServico.id,
     }
 })
 

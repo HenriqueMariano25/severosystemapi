@@ -21,6 +21,7 @@ class AppController{
         this.express.use(require("./routes/planoRouter"))
         this.express.use(require("./routes/veiculoRouter"))
         this.express.use(require("./routes/questaoRouter"))
+        this.express.use(require("./routes/servicoRouter"))
         this.express.use(require("./routes/usuarioRouter"))
     }
 }
