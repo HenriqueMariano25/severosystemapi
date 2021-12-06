@@ -9,7 +9,7 @@ module.exports = {
         updated_at: new Date()
       },
       {
-        descricao: "operador",
+        descricao: "perito",
         created_at: new Date(),
         updated_at: new Date()
       },

@@ -1,4 +1,4 @@
-const { Usuario, StatuUsuario} = require("../models")
+const { Usuario, StatuUsuario, TipoUsuario} = require("../models")
 const {Op} = require("sequelize");
 
 class UsuarioController {
@@ -73,6 +73,20 @@ class UsuarioController {
         let statusUsuario = await StatuUsuario.findAll()
 
         return res.status(200).json({statusUsuario: statusUsuario})
+    }
+
+    async buscarTipoUsuario(req, res) {
+        let tiposUsuario = await TipoUsuario.findAll()
+
+        return res.status(200).json({tiposUsuario: tiposUsuario})
+    }
+
+    async buscarPeritos(req, res){
+        let peritos = await Usuario.findAll({include: {
+                model: TipoUsuario,
+                where: { 'descricao': 'perito'}}})
+
+        return res.status(200).json({peritos: peritos})
     }
 
     async login(req, res) {
