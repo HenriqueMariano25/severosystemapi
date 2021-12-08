@@ -11,7 +11,8 @@ const {
     TipoVeiculo,
     TipoUsuario,
     TipoServico,
-    Servico
+    Servico,
+    PecaVeiculo
 } = require("../../src/models")
 const faker = require("faker")
 
@@ -132,6 +133,12 @@ factory.define("Servico", Servico, async () => {
     return {
         valor: faker.finance.amount(),
         tipo_servico_id: tipoServico.id,
+    }
+})
+
+factory.define("PecaVeiculo", PecaVeiculo, async () => {
+    return {
+        descricao: "Traseira"
     }
 })
 
