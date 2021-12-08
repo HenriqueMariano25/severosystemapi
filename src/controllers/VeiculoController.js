@@ -1,4 +1,4 @@
-const {Veiculo} = require("../models");
+const {Veiculo, TipoVeiculo} = require("../models");
 
 class VeiculoController {
     async cadastrar(req, res) {
@@ -110,6 +110,12 @@ class VeiculoController {
         let veiculos = await Veiculo.findAll()
 
         return res.status(200).json({veiculos: veiculos})
+    }
+
+    async buscarTipoVeiculo(req, res) {
+        let tipoVeiculo = await TipoVeiculo.findAll({order: ['descricao']})
+
+        return res.status(200).json({tipoVeiculo: tipoVeiculo})
     }
 
     async buscar(req, res) {

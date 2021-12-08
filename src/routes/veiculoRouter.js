@@ -9,6 +9,8 @@ routes.delete("/veiculo/:id", VeiculoController.deletar)
 
 routes.get("/veiculos", VeiculoController.buscarTodos)
 
+routes.get("/veiculo/tipos_veiculo", VeiculoController.buscarTipoVeiculo)
+
 routes.get("/veiculo/:id", VeiculoController.buscar)
 
 module.exports = routes
