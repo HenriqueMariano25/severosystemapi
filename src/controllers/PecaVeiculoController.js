@@ -34,7 +34,7 @@ class PecaVeiculoController{
     }
 
     async buscarTodos(req, res) {
-        let pecaVeiculo = await PecaVeiculo.findAll()
+        let pecasVeiculo = await PecaVeiculo.findAll()
 
         return res.status(200).json({pecasVeiculo: pecasVeiculo})
     }

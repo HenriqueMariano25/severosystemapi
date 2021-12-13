@@ -4,17 +4,22 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert("TipoUsuario", [
       {
-        descricao: "administrador",
+        descricao: "Administrador",
         created_at: new Date(),
         updated_at: new Date()
       },
       {
-        descricao: "perito",
+        descricao: "Perito",
         created_at: new Date(),
         updated_at: new Date()
       },
       {
-        descricao: "digitador",
+        descricao: "Digitador",
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        descricao: "Perito auxiliar",
         created_at: new Date(),
         updated_at: new Date()
       },

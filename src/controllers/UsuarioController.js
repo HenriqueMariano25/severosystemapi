@@ -76,7 +76,7 @@ class UsuarioController {
     }
 
     async buscarTipoUsuario(req, res) {
-        let tiposUsuario = await TipoUsuario.findAll()
+        let tiposUsuario = await TipoUsuario.findAll({order: ['descricao']})
 
         return res.status(200).json({tiposUsuario: tiposUsuario})
     }
@@ -84,9 +84,13 @@ class UsuarioController {
     async buscarPeritos(req, res){
         let peritos = await Usuario.findAll({include: {
                 model: TipoUsuario,
-                where: { 'descricao': 'perito'}}})
+                where: { 'descricao': 'Perito'}}})
 
-        return res.status(200).json({peritos: peritos})
+        let peritosAuxiliar = await Usuario.findAll({include: {
+                model: TipoUsuario,
+                where: { 'descricao': 'Perito auxiliar'}}})
+
+        return res.status(200).json({peritos: peritos, peritosAuxiliar: peritosAuxiliar})
     }
 
     async login(req, res) {

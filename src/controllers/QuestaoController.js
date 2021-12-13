@@ -1,6 +1,6 @@
 const {Questao, Gravidade, TipoVeiculo} = require("../models");
 
-class QuestaoController{
+class QuestaoController {
     async cadastrar(req, res) {
         let {titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente} = req.body
 
@@ -33,15 +33,29 @@ class QuestaoController{
         return res.status(200).json({questao: questao})
     }
 
-    async buscarGravidades(req, res){
+    async buscarGravidades(req, res) {
         let gravidades = await Gravidade.findAll()
 
         return res.status(200).json({gravidades: gravidades})
     }
 
+    async buscarTodosPorTipoVeiculo(req, res) {
+        let {tipo_veiculo_id} = req.params
+
+        let questoes = await Questao.findAll({
+            where: {'tipo_veiculo_id': tipo_veiculo_id},
+            include: [{model: Gravidade}]
+        })
+
+        return res.status(200).json({questoes: questoes})
+    }
+
     async buscarTodos(req, res) {
-        let questoes = await Questao.findAll({ include: [{
-            model: Gravidade}, {model: TipoVeiculo}]})
+        let questoes = await Questao.findAll({
+            include: [{
+                model: Gravidade
+            }, {model: TipoVeiculo}]
+        })
 
         return res.status(200).json({questoes: questoes})
     }
@@ -51,7 +65,7 @@ class QuestaoController{
 
         let questao = await Questao.findOne({where: {id}})
 
-        return res.status(200).json({ questao: questao})
+        return res.status(200).json({questao: questao})
     }
 }
 
