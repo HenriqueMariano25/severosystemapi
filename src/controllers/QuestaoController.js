@@ -1,4 +1,4 @@
-const {Questao} = require("../models");
+const {Questao, Gravidade, TipoVeiculo} = require("../models");
 
 class QuestaoController{
     async cadastrar(req, res) {
@@ -33,8 +33,15 @@ class QuestaoController{
         return res.status(200).json({questao: questao})
     }
 
+    async buscarGravidades(req, res){
+        let gravidades = await Gravidade.findAll()
+
+        return res.status(200).json({gravidades: gravidades})
+    }
+
     async buscarTodos(req, res) {
-        let questoes = await Questao.findAll()
+        let questoes = await Questao.findAll({ include: [{
+            model: Gravidade}, {model: TipoVeiculo}]})
 
         return res.status(200).json({questoes: questoes})
     }

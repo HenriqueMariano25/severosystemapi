@@ -7,6 +7,8 @@ routes.put("/questao/:id", QuestaoController.editar)
 
 routes.delete("/questao/:id", QuestaoController.deletar)
 
+routes.get("/questao/gravidades", QuestaoController.buscarGravidades)
+
 routes.get("/questoes", QuestaoController.buscarTodos)
 
 routes.get("/questao/:id", QuestaoController.buscar)
