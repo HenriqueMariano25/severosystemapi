@@ -11,59 +11,75 @@ module.exports = {
       },
       placa:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       ano:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       hodometro:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       uf:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       cidade:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       marca_modelo:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       chassi_bin:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       chassi_atual:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       motor_bin:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       motor_atual:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       cor_bin:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       cor_atual:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       combustivel:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       renavam:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
+      },
+      crlv:{
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      tipo_lacre:{
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      lacre:{
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      cambio_bin:{
+        type: Sequelize.STRING,
+        allowNull: true
       },
       created_at:{
         type: Sequelize.DATE,

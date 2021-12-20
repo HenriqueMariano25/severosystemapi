@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         Questao.belongsTo(models.Gravidade, {
             foreignKey: 'gravidade_id',
         })
+        Questao.belongsToMany(models.Laudo,{
+            through: models.LaudoQuestao,
+            foreignKey: 'questao_id',
+        })
     }
 
     return Questao
