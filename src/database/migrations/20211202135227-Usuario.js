@@ -28,6 +28,14 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
+            perito: {
+                type: Sequelize.BOOLEAN,
+                allowNull: true,
+            },
+            perito_auxiliar: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
             data_admissao: {
                 type: Sequelize.STRING,
                 allowNull: false,
