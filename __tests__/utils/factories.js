@@ -2,8 +2,6 @@ const {factory} = require("factory-girl")
 const {
     Cliente,
     Usuario,
-    Perito,
-    Plano,
     Veiculo,
     StatuUsuario,
     Questao,
@@ -59,19 +57,6 @@ factory.define("Usuario", Usuario, async () => {
         data_admissao: '10/10/2010',
         statu_usuario_id: statuUsuario.id,
         tipo_usuario_id: tipoUsuario.id
-    }
-})
-
-factory.define("Perito", Perito, async () => {
-    return {
-        nome: faker.name.findName(),
-    }
-})
-
-factory.define("Plano", Plano, async () => {
-    return {
-        descricao: faker.company.bs(),
-        valor: faker.finance.amount()
     }
 })
 
