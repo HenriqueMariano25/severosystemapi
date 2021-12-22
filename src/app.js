@@ -1,5 +1,6 @@
 const express = require("express")
 const cors = require("cors")
+const path = require("path");
 
 class AppController{
     constructor() {
@@ -13,6 +14,7 @@ class AppController{
         this.express.use(express.json())
         this.express.use(express.urlencoded({ extended: true }))
         this.express.use(cors())
+        this.express.use("/files", express.static(path.resolve(__dirname, "..", "tmp", "uploads")));
     }
 
     routes(){

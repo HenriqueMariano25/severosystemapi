@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
             prop_cnh: DataTypes.STRING,
             prop_telefone: DataTypes.STRING,
             prop_email: DataTypes.STRING,
+            situacao: DataTypes.STRING,
         },
         {
             freezeTableName: true,
@@ -15,6 +16,14 @@ module.exports = (sequelize, DataTypes) => {
         Laudo.belongsTo(models.Cliente, {
             foreignKey: 'cliente_id',
         })
+        Laudo.belongsTo(models.Usuario, {
+            foreignKey: 'perito_id',
+            as: 'perito'
+        })
+        Laudo.belongsTo(models.Usuario, {
+            foreignKey: 'perito_auxiliar_id',
+            as: 'perito_auxiliar'
+        })
         Laudo.belongsTo(models.Veiculo, {
             foreignKey: 'veiculo_id',
         })
@@ -24,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
         Laudo.belongsToMany(models.Questao,{
             through: models.LaudoQuestao,
             foreignKey: 'laudo_id',
+        })
+        Laudo.hasMany(models.ImagemLaudo, {
+            foreignKey: "laudo_id",
         })
     }
 

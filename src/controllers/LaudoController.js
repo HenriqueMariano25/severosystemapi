@@ -1,4 +1,4 @@
-const {Cliente, Veiculo, Laudo, LaudoQuestao, ImagemLaudo} = require("../models")
+const {Cliente, Veiculo, Laudo, LaudoQuestao, ImagemLaudo, StatusLaudo, Questao, TipoVeiculo, PecaVeiculo, Usuario} = require("../models")
 const dayjs = require("dayjs");
 const path = require("path");
 const sharp = require("sharp");
@@ -38,7 +38,6 @@ const uploadToAWS = props => {
 
 class LaudoController {
     async cadastrar(req, res) {
-        let dados = JSON.parse(req.body.data)
 
         let {
             placa,
@@ -55,9 +54,10 @@ class LaudoController {
             crlv,
             tipo_lacre,
             cambio_bin,
-            lacre
-        } = dados.veiculo
-
+            lacre,
+            quilometragem
+        } = req.body.veiculo
+        //
         let {id: veiculo_id} = await Veiculo.create({
             placa,
             ano,
@@ -73,20 +73,22 @@ class LaudoController {
             crlv,
             tipo_lacre,
             cambio_bin,
-            lacre
+            lacre,
+            quilometragem,
+            tipo_veiculo_id: req.body.veiculo.tipo_veiculo.id
         })
-
+        //
         let {
             nome_razao_social: prop_nome,
             cpf_cnpj: prop_cpf_cnpj,
             cnh: prop_cnh,
             telefone: prop_telefone,
             email: prop_email
-        } = dados.proprietario
-
-        let {id:cliente_id} = dados.cliente
-
-        let {id:laudo_id} = await Laudo.create({
+        } = req.body.proprietario
+        //
+        let {id: cliente_id} = req.body.cliente
+        //
+        let {id: laudo_id} = await Laudo.create({
             cliente_id,
             prop_nome,
             prop_cpf_cnpj,
@@ -98,22 +100,31 @@ class LaudoController {
         })
 
 
-        let questoes = dados.questoes
+        return res.status(200).json({laudo_id})
+    }
 
-        for(let key in questoes){
+    async finalizar(req, res) {
+        let dados = JSON.parse(req.body.data)
+
+
+        let { perito, perito_auxiliar, situacao } = dados
+        let questoes = dados.questoes
+        let {laudo_id} = dados
+
+
+        for (let key in questoes) {
             await LaudoQuestao.create({laudo_id, questao_id: questoes[key].id})
         }
 
         const files = req.files
 
-        for(let key in files){
+        for (let key in files) {
 
             let peca_veiculo_id = req.body.peca_veiculo_id[key]
             let nomeFormatado = `${dayjs().format('DDMMYYYYHHmmssSSS')}-${files[key].originalname}`
             let url = ''
             let nome = nomeFormatado
 
-            console.log(nomeFormatado)
             if (process.env.STORAGE_TYPE === 's3') {
                 const originalFile = files[key]
 
@@ -137,17 +148,26 @@ class LaudoController {
                 url = `${req.protocol}://${req.get('host')}/files/${nome}`
             }
 
-            let imgCriada = await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
-            console.log(imgCriada)
+            await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
         }
 
-        return res.status(200).json({laudo_id})
+        let laudo = await Laudo.update({status_laudo_id: 3, perito_id: perito, perito_auxiliar_id: perito_auxiliar, situacao}, {where: {id: laudo_id}})
+
+        return res.status(200).json({laudo})
     }
 
-    async buscarTodos(req,res){
-        let laudos = await Laudo.findAll({ include: [{ model: Veiculo}, {model: Cliente}]})
+    async buscarTodos(req, res) {
+        let laudos = await Laudo.findAll({include: [{model: Veiculo}, {model: Cliente}, {model: StatusLaudo}]})
 
         return res.status(200).json({laudos: laudos})
+    }
+
+    async buscar(req, res){
+        let { id } = req.params
+
+        let laudo = await Laudo.findOne({where: {id}, include: [{ model: Cliente }, {model: Questao},{model: Usuario, as: 'perito'},{model: Usuario, as: 'perito_auxiliar'}, {model: ImagemLaudo, include: {model: PecaVeiculo, attributes: ['descricao']} }, {model: Veiculo, include: {model: TipoVeiculo, attributes: ['descricao']}}]})
+
+        return res.status(200).json({laudo: laudo})
     }
 }
 
