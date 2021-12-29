@@ -221,7 +221,7 @@ class LaudoController {
                 let data = await uploadToAWS({
                     Body: newFile,
                     ACL: 'public-read',
-                    Bucket: 'acervovirtual',
+                    Bucket: 'severopericia',
                     ContentType: originalFile.mimetype,
                     Key: `${nomeFormatado}`
                 })
