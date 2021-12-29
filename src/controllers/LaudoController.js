@@ -1,4 +1,16 @@
-const {Cliente, Veiculo, Laudo, LaudoQuestao, ImagemLaudo, StatusLaudo, Questao, TipoVeiculo, PecaVeiculo, Usuario} = require("../models")
+const {
+    Cliente,
+    Veiculo,
+    Laudo,
+    LaudoQuestao,
+    ImagemLaudo,
+    StatusLaudo,
+    Questao,
+    TipoVeiculo,
+    PecaVeiculo,
+    Usuario,
+    Gravidade
+} = require("../models")
 const dayjs = require("dayjs");
 const path = require("path");
 const sharp = require("sharp");
@@ -57,7 +69,7 @@ class LaudoController {
             lacre,
             quilometragem
         } = req.body.veiculo
-        //
+
         let {id: veiculo_id} = await Veiculo.create({
             placa,
             ano,
@@ -77,7 +89,7 @@ class LaudoController {
             quilometragem,
             tipo_veiculo_id: req.body.veiculo.tipo_veiculo.id
         })
-        //
+
         let {
             nome_razao_social: prop_nome,
             cpf_cnpj: prop_cpf_cnpj,
@@ -85,9 +97,9 @@ class LaudoController {
             telefone: prop_telefone,
             email: prop_email
         } = req.body.proprietario
-        //
+
         let {id: cliente_id} = req.body.cliente
-        //
+
         let {id: laudo_id} = await Laudo.create({
             cliente_id,
             prop_nome,
@@ -103,11 +115,87 @@ class LaudoController {
         return res.status(200).json({laudo_id})
     }
 
+    async editar(req, res) {
+        let laudo_id = req.params.id
+
+        let {
+            placa,
+            ano,
+            hodometro,
+            uf,
+            cidade,
+            marca_modelo,
+            chassi_bin,
+            motor_bin,
+            cor_bin,
+            combustivel,
+            renavam,
+            crlv,
+            tipo_lacre,
+            cambio_bin,
+            lacre,
+            quilometragem
+        } = req.body.veiculo
+
+        let {id: veiculo_id} = await Veiculo.update({
+                placa,
+                ano,
+                hodometro,
+                uf,
+                cidade,
+                marca_modelo,
+                chassi_bin,
+                motor_bin,
+                cor_bin,
+                combustivel,
+                renavam,
+                crlv,
+                tipo_lacre,
+                cambio_bin,
+                lacre,
+                quilometragem,
+                tipo_veiculo_id: req.body.veiculo.tipo_veiculo.id
+            },
+            {where: {id: laudo_id}})
+
+        let {
+            nome_razao_social: prop_nome,
+            cpf_cnpj: prop_cpf_cnpj,
+            cnh: prop_cnh,
+            telefone: prop_telefone,
+            email: prop_email
+        } = req.body.proprietario
+
+        let {id: cliente_id} = req.body.cliente
+
+        let laudo
+
+        await Laudo.update({
+                cliente_id,
+                prop_nome,
+                prop_cpf_cnpj,
+                prop_cnh,
+                prop_telefone,
+                prop_email,
+                veiculo_id,
+            },
+            {
+                returning: true,
+                where: {
+                    id: laudo_id
+                }
+            }).then(result => {
+            laudo = result[1]
+        })
+        return res.status(200).json({laudo: laudo})
+    }
+
+
     async finalizar(req, res) {
         let dados = JSON.parse(req.body.data)
 
 
-        let { perito, perito_auxiliar, situacao } = dados
+        let {perito, perito_auxiliar, situacao} = dados
         let questoes = dados.questoes
         let {laudo_id} = dados
 
@@ -151,23 +239,48 @@ class LaudoController {
             await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
         }
 
-        let laudo = await Laudo.update({status_laudo_id: 3, perito_id: perito, perito_auxiliar_id: perito_auxiliar, situacao}, {where: {id: laudo_id}})
+        let laudo = await Laudo.update({
+            status_laudo_id: 3,
+            perito_id: perito,
+            perito_auxiliar_id: perito_auxiliar,
+            situacao
+        }, {where: {id: laudo_id}})
 
         return res.status(200).json({laudo})
     }
 
     async buscarTodos(req, res) {
-        let laudos = await Laudo.findAll({include: [{model: Veiculo}, {model: Cliente}, {model: StatusLaudo}]})
+        let laudos = await Laudo.findAll({
+            include: [{
+                model: Veiculo,
+                include: [{model: TipoVeiculo, attributes: ['descricao']}]
+            }, {model: Cliente}, {model: StatusLaudo}]
+        })
 
         return res.status(200).json({laudos: laudos})
     }
 
-    async buscar(req, res){
-        let { id } = req.params
+    async buscar(req, res) {
+        let {id} = req.params
+        let laudo = await Laudo.findOne({
+            where: {id},
+            include: [
+                {model: Cliente},
+                {model: Questao, include: {model: Gravidade, attributes: ['cor', 'icone']}},
+                {model: Usuario, as: 'perito'},
+                {
+                    model: Usuario,
+                    as: 'perito_auxiliar'
+                },
+                {model: ImagemLaudo, include: {model: PecaVeiculo, attributes: ['descricao']}}, {
+                    model: Veiculo,
+                    include: {model: TipoVeiculo, attributes: ['descricao']}
+                }]
 
-        let laudo = await Laudo.findOne({where: {id}, include: [{ model: Cliente }, {model: Questao},{model: Usuario, as: 'perito'},{model: Usuario, as: 'perito_auxiliar'}, {model: ImagemLaudo, include: {model: PecaVeiculo, attributes: ['descricao']} }, {model: Veiculo, include: {model: TipoVeiculo, attributes: ['descricao']}}]})
-
+        })
         return res.status(200).json({laudo: laudo})
+
+
     }
 }
 

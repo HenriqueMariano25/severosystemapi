@@ -8,14 +8,10 @@ routes.post('/laudo', LaudoController.cadastrar)
 
 routes.post('/laudo/:id/finalizar', multer(multerConfig).array('files', 4), LaudoController.finalizar)
 
-// routes.put("/laudo/:id", LaudoController.editar)
-//
-// routes.delete("/laudo/:id", LaudoController.deletar)
-//
+routes.put("/laudo/:id", LaudoController.editar)
+
 routes.get("/laudos", LaudoController.buscarTodos)
 
 routes.get("/laudo/:id", LaudoController.buscar)
-//
-// routes.get("/laudo/:id", LaudoController.buscar)
 
 module.exports = routes
