@@ -17,6 +17,8 @@ const sharp = require("sharp");
 const aws = require('aws-sdk')
 const fs = require("fs");
 
+const {AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION} = process.env
+
 const sharpify = async originalFile => {
     try {
         const image = sharp(originalFile.buffer)
@@ -221,7 +223,7 @@ class LaudoController {
                 let data = await uploadToAWS({
                     Body: newFile,
                     ACL: 'public-read',
-                    Bucket: 'severopericia',
+                    Bucket: process.env.BUCKET_NAME,
                     ContentType: originalFile.mimetype,
                     Key: `${nomeFormatado}`
                 })
