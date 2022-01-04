@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
             tipo_lacre: DataTypes.STRING,
             cambio_bin: DataTypes.STRING,
             lacre: DataTypes.STRING,
+            quilometragem: DataTypes.STRING,
         },
         {
             freezeTableName: true,
