@@ -147,6 +147,11 @@ class LaudoController {
 
         for(let img of imgsParaDeletar){
             if (process.env.STORAGE_TYPE === "s3") {
+                const s3 = new aws.S3({
+                    accessKeyId: AWS_ACCESS_KEY_ID,
+                    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+                    region: AWS_DEFAULT_REGION
+                })
                 s3.deleteObject({
                     Bucket: process.env.BUCKET_NAME,
                     Key: img.nome
