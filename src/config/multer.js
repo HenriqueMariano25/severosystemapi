@@ -4,7 +4,7 @@ const storageType = multer.memoryStorage({})
 
 module.exports = {
     limits: {
-        fileSize: 2 * 1024 * 1024 * 1024,
+        
     },
     storage: storageType,
     fileFilter: (req, file, callback) => {
