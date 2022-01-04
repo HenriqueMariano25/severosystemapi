@@ -3,12 +3,11 @@ const LaudoController = require("../controllers/LaudoController")
 const multer = require("multer");
 const multerConfig = require("../config/multer");
 
-
 routes.post('/laudo', LaudoController.cadastrar)
 
-routes.post('/laudo/:id/finalizar', multer(multerConfig).array('files', 4), LaudoController.finalizar)
+routes.put('/laudo/:id/finalizar', LaudoController.finalizar)
 
-routes.put("/laudo/:id", LaudoController.editar)
+routes.put("/laudo/:id", multer(multerConfig).array('files', 4), LaudoController.editar)
 
 routes.get("/laudos", LaudoController.buscarTodos)
 

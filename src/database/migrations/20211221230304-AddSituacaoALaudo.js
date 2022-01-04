@@ -24,7 +24,11 @@ module.exports = {
       queryInterface.addColumn('Laudo', 'situacao',
           {
             type: Sequelize.STRING,
-          })
+          }),
+        queryInterface.addColumn('Laudo', 'observacao',
+            {
+                type: Sequelize.STRING,
+            })
     ]);
   },
 
@@ -32,7 +36,8 @@ module.exports = {
     return Promise.all([
       queryInterface.removeColumn('Laudo', 'perito_id'),
       queryInterface.removeColumn('Laudo', 'perito_auxiliar_id'),
-      queryInterface.removeColumn('Laudo', 'situacao')
+      queryInterface.removeColumn('Laudo', 'situacao'),
+      queryInterface.removeColumn('Laudo', 'observacao')
     ]);
   }
 };

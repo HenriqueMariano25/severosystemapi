@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
             prop_telefone: DataTypes.STRING,
             prop_email: DataTypes.STRING,
             situacao: DataTypes.STRING,
+            observacao: DataTypes.STRING,
         },
         {
             freezeTableName: true,

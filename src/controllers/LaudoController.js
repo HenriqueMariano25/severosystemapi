@@ -16,6 +16,7 @@ const path = require("path");
 const sharp = require("sharp");
 const aws = require('aws-sdk')
 const fs = require("fs");
+const {Op} = require("sequelize");
 
 const {AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION} = process.env
 
@@ -118,98 +119,50 @@ class LaudoController {
     }
 
     async editar(req, res) {
-        let laudo_id = req.params.id
-
-        let {
-            placa,
-            ano,
-            hodometro,
-            uf,
-            cidade,
-            marca_modelo,
-            chassi_bin,
-            motor_bin,
-            cor_bin,
-            combustivel,
-            renavam,
-            crlv,
-            tipo_lacre,
-            cambio_bin,
-            lacre,
-            quilometragem
-        } = req.body.veiculo
-
-        let {id: veiculo_id} = await Veiculo.update({
-                placa,
-                ano,
-                hodometro,
-                uf,
-                cidade,
-                marca_modelo,
-                chassi_bin,
-                motor_bin,
-                cor_bin,
-                combustivel,
-                renavam,
-                crlv,
-                tipo_lacre,
-                cambio_bin,
-                lacre,
-                quilometragem,
-                tipo_veiculo_id: req.body.veiculo.tipo_veiculo.id
-            },
-            {where: {id: laudo_id}})
-
-        let {
-            nome_razao_social: prop_nome,
-            cpf_cnpj: prop_cpf_cnpj,
-            cnh: prop_cnh,
-            telefone: prop_telefone,
-            email: prop_email
-        } = req.body.proprietario
-
-        let {id: cliente_id} = req.body.cliente
-
-        let laudo
-
-        await Laudo.update({
-                cliente_id,
-                prop_nome,
-                prop_cpf_cnpj,
-                prop_cnh,
-                prop_telefone,
-                prop_email,
-                veiculo_id,
-            },
-            {
-                returning: true,
-                where: {
-                    id: laudo_id
-                }
-            }).then(result => {
-            laudo = result[1]
-        })
-        return res.status(200).json({laudo: laudo})
-    }
-
-
-    async finalizar(req, res) {
         let dados = JSON.parse(req.body.data)
-
-
-        let {perito, perito_auxiliar, situacao} = dados
-        let questoes = dados.questoes
         let {laudo_id} = dados
 
-
+        let questoes = dados.questoes
+        let id_questoes = []
         for (let key in questoes) {
-            await LaudoQuestao.create({laudo_id, questao_id: questoes[key].id})
+            if (questoes[key]['LaudoQuestao'] === undefined) {
+                let {id} = await LaudoQuestao.create({laudo_id, questao_id: questoes[key].id})
+                id_questoes.push(id)
+            } else {
+                id_questoes.push(questoes[key]['LaudoQuestao']['id'])
+            }
         }
 
+        await LaudoQuestao.destroy({where: {[Op.and]: [{id: {[Op.not]: id_questoes}}, {laudo_id: laudo_id}]}})
+
+        let imgs = dados.imgs
+
+        let id_imgs = []
+        for (let img of imgs) {
+            if (img.id !== undefined)
+                id_imgs.push(img.id)
+        }
+
+        let imgsParaDeletar = await ImagemLaudo.findAll({where: {[Op.and]: [{id: {[Op.not]: id_imgs}}, {laudo_id: laudo_id}]} })
+
+        for(let img of imgsParaDeletar){
+            if (process.env.STORAGE_TYPE === "s3") {
+                s3.deleteObject({
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: img.nome
+                })
+            } else {
+                fs.unlink((path.resolve(__dirname, '..', '..', 'tmp', 'uploads', img.nome)),
+                    function (err) {
+                        if (err) throw err;
+                    })
+            }
+            ImagemLaudo.destroy({where: {id: img.id}})
+
+        }
         const files = req.files
 
         for (let key in files) {
-
             let peca_veiculo_id = req.body.peca_veiculo_id[key]
             let nomeFormatado = `${dayjs().format('DDMMYYYYHHmmssSSS')}-${files[key].originalname}`
             let url = ''
@@ -241,14 +194,99 @@ class LaudoController {
             await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
         }
 
+         let {
+             placa,
+             ano,
+             hodometro,
+             uf,
+             cidade,
+             marca_modelo,
+             chassi_bin,
+             motor_bin,
+             cor_bin,
+             combustivel,
+             renavam,
+             crlv,
+             tipo_lacre,
+             cambio_bin,
+             lacre,
+             quilometragem
+         } = dados.veiculo
+
+         let {id: veiculo_id} = await Veiculo.update({
+                 placa,
+                 ano,
+                 hodometro,
+                 uf,
+                 cidade,
+                 marca_modelo,
+                 chassi_bin,
+                 motor_bin,
+                 cor_bin,
+                 combustivel,
+                 renavam,
+                 crlv,
+                 tipo_lacre,
+                 cambio_bin,
+                 lacre,
+                 quilometragem,
+                 tipo_veiculo_id: dados.veiculo.tipo_veiculo.id
+             },
+             {where: {id: laudo_id}})
+
+         let {
+             nome_razao_social: prop_nome,
+             cpf_cnpj: prop_cpf_cnpj,
+             cnh: prop_cnh,
+             telefone: prop_telefone,
+             email: prop_email
+         } = dados.proprietario
+
+         let {situacao, observacao, perito: perito_id, perito_auxiliar: perito_auxiliar_id} = dados.resumo
+
+         let {id: cliente_id} = dados.cliente
+
+         let laudo
+
+        try{
+            await Laudo.update({
+                    cliente_id,
+                    prop_nome,
+                    prop_cpf_cnpj,
+                    prop_cnh,
+                    prop_telefone,
+                    prop_email,
+                    veiculo_id,
+                    situacao,
+                    observacao,
+                    perito_id,
+                    perito_auxiliar_id
+                },
+                {
+                    returning: true,
+                    where: {
+                        id: laudo_id
+                    }
+                }).then(result => {
+                laudo = result[1]
+            })
+        }catch (e) {
+            console.log(e)
+            return res.status(400).json({ 'message': 'Erro ao editar laudo'})
+        }
+         return res.status(200).json({laudo: laudo})
+    }
+
+
+    async finalizar(req, res) {
+        let { id } = req.params
+
         let laudo = await Laudo.update({
-            status_laudo_id: 3,
-            perito_id: perito,
-            perito_auxiliar_id: perito_auxiliar,
-            situacao
-        }, {where: {id: laudo_id}})
+                status_laudo_id: 3,
+            }, {where: {id: id}})
 
         return res.status(200).json({laudo})
+
     }
 
     async buscarTodos(req, res) {
@@ -256,7 +294,11 @@ class LaudoController {
             include: [{
                 model: Veiculo,
                 include: [{model: TipoVeiculo, attributes: ['descricao']}]
-            }, {model: Cliente}, {model: StatusLaudo}]
+            },
+                {model: Cliente},
+                {model: StatusLaudo}],
+            order: [
+                ['id', 'DESC']]
         })
 
         return res.status(200).json({laudos: laudos})
