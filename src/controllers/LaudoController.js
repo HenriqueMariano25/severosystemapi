@@ -31,7 +31,7 @@ const sharpify = async originalFile => {
             png: {quality: 80}
         }
         return await image[format](config[format])
-            .resize({width: 1000, withoutEnlargement: true})
+            // .resize({width: 1000, withoutEnlargement: true})
     } catch (err) {
         throw new Error(err)
     }
@@ -137,6 +137,8 @@ class LaudoController {
 
         let imgs = dados.imgs
 
+
+
         let id_imgs = []
         for (let img of imgs) {
             if (img.id !== undefined)
@@ -189,7 +191,7 @@ class LaudoController {
                 nome = data['Key']
 
             } else if (process.env.STORAGE_TYPE === 'local') {
-                await sharp(files[key].buffer).resize(600, 600).toFile(path.resolve('tmp/uploads/', nomeFormatado))
+                await sharp(files[key].buffer).toFile(path.resolve('tmp/uploads/', nomeFormatado))
             }
 
             if (!url) {
@@ -301,7 +303,15 @@ class LaudoController {
                 include: [{model: TipoVeiculo, attributes: ['descricao']}]
             },
                 {model: Cliente},
-                {model: StatusLaudo}],
+                {model: StatusLaudo},
+                {model: Usuario,
+                    as: 'perito',
+                    attributes: ['nome']},
+                {
+                    model: Usuario,
+                    as: 'perito_auxiliar',
+                    attributes: ['nome']
+                },],
             order: [
                 ['id', 'DESC']]
         })
