@@ -348,13 +348,18 @@ class LaudoController {
     }
 
     async deletar(req, res) {
-        let {id} = req.params
+        try {
+            let {id} = req.params
 
-        let laudo = await Laudo.findOne({where: {id: id}})
+            let laudo = await Laudo.findOne({where: {id: id}})
 
-        laudo.destroy()
+            laudo.destroy()
 
-        return res.status(200).json({ laudo: laudo })
+            return res.status(200).json({laudo: laudo})
+        } catch (e) {
+            console.log(e)
+            return res.status(400).json({mensagem: 'Erro ao deletar Laudo!'})
+        }
     }
 }
 
