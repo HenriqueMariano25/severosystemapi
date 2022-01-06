@@ -7,27 +7,21 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
-        primaryKey: true
       },
       prop_nome:{
         type: Sequelize.STRING,
-        allowNull:true,
       },
       prop_cpf_cnpj:{
         type: Sequelize.STRING,
-        allowNull:true,
       },
       prop_cnh:{
         type: Sequelize.STRING,
-        allowNull:true,
       },
       prop_telefone:{
         type: Sequelize.STRING,
-        allowNull:true,
       },
       prop_email:{
         type: Sequelize.STRING,
-        allowNull:true,
       },
       cliente_id:{
         type: Sequelize.INTEGER,
