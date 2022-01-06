@@ -11,29 +11,51 @@ module.exports = {
       },
       prop_nome:{
         type: Sequelize.STRING,
-        allowNull:false,
+        allowNull:true,
       },
       prop_cpf_cnpj:{
         type: Sequelize.STRING,
-        allowNull:false,
+        allowNull:true,
       },
       prop_cnh:{
         type: Sequelize.STRING,
-        allowNull:false,
+        allowNull:true,
       },
       prop_telefone:{
         type: Sequelize.STRING,
-        allowNull:false,
+        allowNull:true,
       },
       prop_email:{
         type: Sequelize.STRING,
-        allowNull:false,
+        allowNull:true,
       },
       cliente_id:{
         type: Sequelize.INTEGER,
         references: { model: "Cliente", key: "id"},
         onDelete: "CASCADE",
         allowNull:true,
+      },
+      perito_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Usuario',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      perito_auxiliar_id:{
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Usuario',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      situacao:{
+        type: Sequelize.STRING,
+      },
+      observacao:{
+        type: Sequelize.STRING,
       },
       status_laudo_id:{
         type: Sequelize.INTEGER,

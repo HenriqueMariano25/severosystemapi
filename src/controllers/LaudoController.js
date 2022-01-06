@@ -103,19 +103,26 @@ class LaudoController {
 
         let {id: cliente_id} = req.body.cliente
 
-        let {id: laudo_id} = await Laudo.create({
-            cliente_id,
-            prop_nome,
-            prop_cpf_cnpj,
-            prop_cnh,
-            prop_telefone,
-            prop_email,
-            veiculo_id,
-            status_laudo_id: 1
-        })
+        try {
+            let {id: laudo_id} = await Laudo.create({
+                cliente_id,
+                prop_nome,
+                prop_cpf_cnpj,
+                prop_cnh,
+                prop_telefone,
+                prop_email,
+                veiculo_id,
+                status_laudo_id: 1
+            })
+
+            return res.status(200).json({laudo_id})
+        }catch (e) {
+            console.log(e)
+            return res.status(400).json({ message: 'Erro ao cadastrar laudo'})
+        }
 
 
-        return res.status(200).json({laudo_id})
+
     }
 
     async editar(req, res) {
