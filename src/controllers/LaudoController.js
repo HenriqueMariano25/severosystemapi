@@ -31,7 +31,7 @@ const sharpify = async originalFile => {
             png: {quality: 80}
         }
         return await image[format](config[format])
-            // .resize({width: 1000, withoutEnlargement: true})
+        // .resize({width: 1000, withoutEnlargement: true})
     } catch (err) {
         throw new Error(err)
     }
@@ -116,11 +116,10 @@ class LaudoController {
             })
 
             return res.status(200).json({laudo_id})
-        }catch (e) {
+        } catch (e) {
             console.log(e)
-            return res.status(400).json({ message: 'Erro ao cadastrar laudo'})
+            return res.status(400).json({message: 'Erro ao cadastrar laudo'})
         }
-
 
 
     }
@@ -145,16 +144,15 @@ class LaudoController {
         let imgs = dados.imgs
 
 
-
         let id_imgs = []
         for (let img of imgs) {
             if (img.id !== undefined)
                 id_imgs.push(img.id)
         }
 
-        let imgsParaDeletar = await ImagemLaudo.findAll({where: {[Op.and]: [{id: {[Op.not]: id_imgs}}, {laudo_id: laudo_id}]} })
+        let imgsParaDeletar = await ImagemLaudo.findAll({where: {[Op.and]: [{id: {[Op.not]: id_imgs}}, {laudo_id: laudo_id}]}})
 
-        for(let img of imgsParaDeletar){
+        for (let img of imgsParaDeletar) {
             if (process.env.STORAGE_TYPE === "s3") {
                 const s3 = new aws.S3({
                     accessKeyId: AWS_ACCESS_KEY_ID,
@@ -208,61 +206,61 @@ class LaudoController {
             await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
         }
 
-         let {
-             placa,
-             ano,
-             hodometro,
-             uf,
-             cidade,
-             marca_modelo,
-             chassi_bin,
-             motor_bin,
-             cor_bin,
-             combustivel,
-             renavam,
-             crlv,
-             tipo_lacre,
-             cambio_bin,
-             lacre,
-             quilometragem
-         } = dados.veiculo
+        let {
+            placa,
+            ano,
+            hodometro,
+            uf,
+            cidade,
+            marca_modelo,
+            chassi_bin,
+            motor_bin,
+            cor_bin,
+            combustivel,
+            renavam,
+            crlv,
+            tipo_lacre,
+            cambio_bin,
+            lacre,
+            quilometragem
+        } = dados.veiculo
 
-         let {id: veiculo_id} = await Veiculo.update({
-                 placa,
-                 ano,
-                 hodometro,
-                 uf,
-                 cidade,
-                 marca_modelo,
-                 chassi_bin,
-                 motor_bin,
-                 cor_bin,
-                 combustivel,
-                 renavam,
-                 crlv,
-                 tipo_lacre,
-                 cambio_bin,
-                 lacre,
-                 quilometragem,
-                 tipo_veiculo_id: dados.veiculo.tipo_veiculo.id
-             },
-             {where: {id: laudo_id}})
+        let {id: veiculo_id} = await Veiculo.update({
+                placa,
+                ano,
+                hodometro,
+                uf,
+                cidade,
+                marca_modelo,
+                chassi_bin,
+                motor_bin,
+                cor_bin,
+                combustivel,
+                renavam,
+                crlv,
+                tipo_lacre,
+                cambio_bin,
+                lacre,
+                quilometragem,
+                tipo_veiculo_id: dados.veiculo.tipo_veiculo.id
+            },
+            {where: {id: laudo_id}})
 
-         let {
-             nome_razao_social: prop_nome,
-             cpf_cnpj: prop_cpf_cnpj,
-             cnh: prop_cnh,
-             telefone: prop_telefone,
-             email: prop_email
-         } = dados.proprietario
+        let {
+            nome_razao_social: prop_nome,
+            cpf_cnpj: prop_cpf_cnpj,
+            cnh: prop_cnh,
+            telefone: prop_telefone,
+            email: prop_email
+        } = dados.proprietario
 
-         let {situacao, observacao, perito: perito_id, perito_auxiliar: perito_auxiliar_id} = dados.resumo
+        let {situacao, observacao, perito: perito_id, perito_auxiliar: perito_auxiliar_id} = dados.resumo
 
-         let {id: cliente_id} = dados.cliente
+        let {id: cliente_id} = dados.cliente
 
-         let laudo
+        let laudo
 
-        try{
+        try {
             await Laudo.update({
                     cliente_id,
                     prop_nome,
@@ -284,20 +282,20 @@ class LaudoController {
                 }).then(result => {
                 laudo = result[1]
             })
-        }catch (e) {
+        } catch (e) {
             console.log(e)
-            return res.status(400).json({ 'message': 'Erro ao editar laudo'})
+            return res.status(400).json({'message': 'Erro ao editar laudo'})
         }
-         return res.status(200).json({laudo: laudo})
+        return res.status(200).json({laudo: laudo})
     }
 
 
     async finalizar(req, res) {
-        let { id } = req.params
+        let {id} = req.params
 
         let laudo = await Laudo.update({
-                status_laudo_id: 3,
-            }, {where: {id: id}})
+            status_laudo_id: 3,
+        }, {where: {id: id}})
 
         return res.status(200).json({laudo})
 
@@ -311,9 +309,11 @@ class LaudoController {
             },
                 {model: Cliente},
                 {model: StatusLaudo},
-                {model: Usuario,
+                {
+                    model: Usuario,
                     as: 'perito',
-                    attributes: ['nome']},
+                    attributes: ['nome']
+                },
                 {
                     model: Usuario,
                     as: 'perito_auxiliar',
@@ -345,8 +345,16 @@ class LaudoController {
 
         })
         return res.status(200).json({laudo: laudo})
+    }
 
+    async deletar(req, res) {
+        let {id} = req.params
 
+        let laudo = await Laudo.findOne({where: {id: id}})
+
+        laudo.destroy()
+
+        return res.status(200).json({ laudo: laudo })
     }
 }
 
