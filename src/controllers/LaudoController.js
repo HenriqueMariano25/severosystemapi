@@ -290,9 +290,11 @@ class LaudoController {
 
     async finalizar(req, res) {
         let {id} = req.params
+        let { digitador_id } = req.body
 
         let laudo = await Laudo.update({
             status_laudo_id: 3,
+            digitador_id
         }, {where: {id: id}})
 
         return res.status(200).json({laudo})
@@ -316,7 +318,13 @@ class LaudoController {
                     model: Usuario,
                     as: 'perito_auxiliar',
                     attributes: ['nome']
-                },],
+                },
+                {
+                    model: Usuario,
+                    as: 'digitador',
+                    attributes: ['nome']
+                },
+            ],
             order: [
                 ['id', 'DESC']]
         })
@@ -335,6 +343,11 @@ class LaudoController {
                 {
                     model: Usuario,
                     as: 'perito_auxiliar'
+                },
+                {
+                    model: Usuario,
+                    as: 'digitador',
+                    attributes: ['nome']
                 },
                 {model: ImagemLaudo, include: {model: PecaVeiculo, attributes: ['descricao']}}, {
                     model: Veiculo,

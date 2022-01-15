@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'perito_auxiliar_id',
             as: 'perito_auxiliar'
         })
+        Laudo.belongsTo(models.Usuario, {
+            foreignKey: 'digitador_id',
+            as: 'digitador'
+        })
         Laudo.belongsTo(models.Veiculo, {
             foreignKey: 'veiculo_id',
         })
