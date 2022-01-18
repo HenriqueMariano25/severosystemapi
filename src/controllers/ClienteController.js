@@ -4,12 +4,17 @@ class ClienteController {
     async cadastrar(req, res) {
         let {nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento} = req.body
 
-        if (!nome_razao_social || !email || !cpf_cnpj || !telefone || !cnh)
+        if (!nome_razao_social)
             return res.status(400).json({message: "Dados obrigatorios faltando"})
 
-        let cliente = await Cliente.create({nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento})
+        try{
+            let cliente = await Cliente.create({nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento})
+            return res.status(200).json({cliente: cliente})
+        }catch (e) {
+            console.log(e)
+            return res.status(400).json({mensagem: "Erro ao cadastrar cliente"})
+        }
 
-        return res.status(200).json({cliente: cliente})
     }
 
     async editar(req, res) {
