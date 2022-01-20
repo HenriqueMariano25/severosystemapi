@@ -39,7 +39,7 @@ class ClienteController {
     }
 
     async buscarTodos(req, res) {
-        let clientes = await Cliente.findAll()
+        let clientes = await Cliente.findAll({ order: ['nome_razao_social']})
 
         return res.status(200).json({clientes: clientes})
     }
