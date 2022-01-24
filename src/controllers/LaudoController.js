@@ -62,15 +62,18 @@ class LaudoController {
             cidade,
             marca_modelo,
             chassi_bin,
+            chassi_atual,
             motor_bin,
+            motor_atual,
             cor_bin,
+            cor_atual,
             combustivel,
             renavam,
+            cambio_bin,
+            cambio_atual,
             crlv,
             tipo_lacre,
-            cambio_bin,
             lacre,
-            quilometragem
         } = req.body.veiculo
 
         let {id: veiculo_id} = await Veiculo.create({
@@ -81,15 +84,18 @@ class LaudoController {
             cidade,
             marca_modelo,
             chassi_bin,
+            chassi_atual,
             motor_bin,
+            motor_atual,
             cor_bin,
+            cor_atual,
             combustivel,
             renavam,
+            cambio_bin,
+            cambio_atual,
             crlv,
             tipo_lacre,
-            cambio_bin,
             lacre,
-            quilometragem,
             tipo_veiculo_id: req.body.veiculo.tipo_veiculo.id
         })
 
@@ -215,15 +221,18 @@ class LaudoController {
                 cidade,
                 marca_modelo,
                 chassi_bin,
+                chassi_atual,
                 motor_bin,
+                motor_atual,
                 cor_bin,
+                cor_atual,
                 combustivel,
                 renavam,
+                cambio_bin,
+                cambio_atual,
                 crlv,
                 tipo_lacre,
-                cambio_bin,
                 lacre,
-                quilometragem
             } = dados.veiculo
 
             let {id: veiculo_id} = await Veiculo.update({
@@ -234,15 +243,18 @@ class LaudoController {
                     cidade,
                     marca_modelo,
                     chassi_bin,
+                    chassi_atual,
                     motor_bin,
+                    motor_atual,
                     cor_bin,
+                    cor_atual,
                     combustivel,
                     renavam,
+                    cambio_bin,
+                    cambio_atual,
                     crlv,
                     tipo_lacre,
-                    cambio_bin,
                     lacre,
-                    quilometragem,
                     tipo_veiculo_id: dados.veiculo.tipo_veiculo.id
                 },
                 {where: {id: dados.veiculo.id}})

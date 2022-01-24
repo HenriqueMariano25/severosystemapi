@@ -16,7 +16,7 @@ class VeiculoController {
             cor_bin,
             cor_atual,
             combustivel,
-            renavam
+            renavam,
         } = req.body
 
         if (!placa ||

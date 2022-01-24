@@ -14,11 +14,11 @@ module.exports = (sequelize, DataTypes) => {
             cor_atual: DataTypes.STRING,
             combustivel: DataTypes.STRING,
             renavam: DataTypes.STRING,
+            cambio_bin: DataTypes.STRING,
+            cambio_atual: DataTypes.STRING,
             crlv: DataTypes.STRING,
             tipo_lacre: DataTypes.STRING,
-            cambio_bin: DataTypes.STRING,
             lacre: DataTypes.STRING,
-            quilometragem: DataTypes.STRING,
         },
         {
             freezeTableName: true,
