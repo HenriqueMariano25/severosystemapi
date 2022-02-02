@@ -266,7 +266,7 @@ class LaudoController {
                 email: prop_email
             } = dados.proprietario
 
-            let {situacao, observacao, perito: perito_id, perito_auxiliar: perito_auxiliar_id} = dados.resumo
+            let {situacao, observacao, perito: perito_id, perito_auxiliar: perito_auxiliar_id, digitador: digitador_id} = dados.resumo
 
             let {id: cliente_id} = dados.cliente
 
@@ -282,7 +282,8 @@ class LaudoController {
                     situacao,
                     observacao,
                     perito_id,
-                    perito_auxiliar_id
+                    perito_auxiliar_id,
+                    digitador_id
                 },
                 {
                     returning: true,
@@ -302,11 +303,9 @@ class LaudoController {
 
     async finalizar(req, res) {
         let {id} = req.params
-        let { digitador_id } = req.body
 
         let laudo = await Laudo.update({
             status_laudo_id: 3,
-            digitador_id
         }, {where: {id: id}})
 
         return res.status(200).json({laudo})
@@ -359,7 +358,7 @@ class LaudoController {
                 {
                     model: Usuario,
                     as: 'digitador',
-                    attributes: ['nome']
+                    attributes: ['nome', 'id']
                 },
                 {model: ImagemLaudo, include: {model: PecaVeiculo, attributes: ['descricao']}}, {
                     model: Veiculo,

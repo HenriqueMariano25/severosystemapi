@@ -88,7 +88,9 @@ class UsuarioController {
 
         let peritosAuxiliar = await Usuario.findAll({where: {perito_auxiliar: true}})
 
-        return res.status(200).json({peritos: peritos, peritosAuxiliar: peritosAuxiliar})
+        let digitadores = await Usuario.findAll({ where: {cargo: 'digitador'}})
+
+        return res.status(200).json({peritos: peritos, peritosAuxiliar: peritosAuxiliar, digitadores: digitadores})
     }
 
     async login(req, res) {
