@@ -1,9 +1,20 @@
-const { Usuario, StatuUsuario, TipoUsuario} = require("../models")
+const {Usuario, StatuUsuario, TipoUsuario} = require("../models")
 const {Op} = require("sequelize");
+const Sequelize = require('sequelize');
 
 class UsuarioController {
     async cadastrar(req, res) {
-        const {nome, senha, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id, tipo_usuario_id, perito, perito_auxiliar } = req.body
+        const {
+            nome,
+            senha,
+            usuario: novoUsuario,
+            cargo,
+            data_admissao,
+            statu_usuario_id,
+            tipo_usuario_id,
+            perito,
+            perito_auxiliar
+        } = req.body
 
         if (!nome || !senha || !novoUsuario || !cargo || !data_admissao || !tipo_usuario_id)
             return res.status(400).json({message: "Dados faltando para realizar o cadastro!"})
@@ -30,7 +41,16 @@ class UsuarioController {
 
 
     async editar(req, res) {
-        const { nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id, tipo_usuario_id, perito, perito_auxiliar} = req.body
+        const {
+            nome,
+            usuario: novoUsuario,
+            cargo,
+            data_admissao,
+            statu_usuario_id,
+            tipo_usuario_id,
+            perito,
+            perito_auxiliar
+        } = req.body
         const {id} = req.params
 
         const usuario = await Usuario.findOne({where: {id}})
@@ -38,7 +58,16 @@ class UsuarioController {
         if (!usuario)
             return res.status(400).json({message: "Usuário não encontrado"})
 
-        await usuario.update({nome, usuario: novoUsuario, cargo, data_admissao, statu_usuario_id, tipo_usuario_id, perito, perito_auxiliar})
+        await usuario.update({
+            nome,
+            usuario: novoUsuario,
+            cargo,
+            data_admissao,
+            statu_usuario_id,
+            tipo_usuario_id,
+            perito,
+            perito_auxiliar
+        })
 
         return res.status(200).json({usuario})
     }
@@ -83,12 +112,18 @@ class UsuarioController {
         return res.status(200).json({tiposUsuario: tiposUsuario})
     }
 
-    async buscarPeritos(req, res){
-        let peritos = await Usuario.findAll({where: {perito: true}})
+    async buscarPeritos(req, res) {
+        let peritos = await Usuario.findAll({order: ['nome'], where: {perito: true}})
 
-        let peritosAuxiliar = await Usuario.findAll({where: {perito_auxiliar: true}})
+        let peritosAuxiliar = await Usuario.findAll({order: ['nome'], where: {perito_auxiliar: true}})
 
-        let digitadores = await Usuario.findAll({ where: {cargo: 'digitador'}})
+        let digitadores = await Usuario.findAll({
+            order: ['nome'],
+            where: Sequelize.where(
+                Sequelize.fn('lower', Sequelize.col('cargo')),
+                Sequelize.fn('lower', 'digitador')
+            ),
+        })
 
         return res.status(200).json({peritos: peritos, peritosAuxiliar: peritosAuxiliar, digitadores: digitadores})
     }
