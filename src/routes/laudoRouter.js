@@ -7,7 +7,11 @@ routes.post('/laudo', LaudoController.cadastrar)
 
 routes.put('/laudo/:id/finalizar', LaudoController.finalizar)
 
-routes.put("/laudo/:id", multer(multerConfig).array('files', 30), LaudoController.editar)
+routes.put("/laudo/:id/salvar_fotos", multer(multerConfig).array('files', 30), LaudoController.salvarFotos)
+
+routes.put("/laudo/:id/salvar_questoes", LaudoController.salvarQuestoes)
+
+routes.put("/laudo/:id", LaudoController.editar)
 
 routes.get("/laudos", LaudoController.buscarTodos)
 
