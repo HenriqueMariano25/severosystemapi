@@ -9,6 +9,8 @@ routes.put('/laudo/:id/finalizar', LaudoController.finalizar)
 
 routes.put("/laudo/:id/salvar_fotos", multer(multerConfig).array('files', 30), LaudoController.salvarFotos)
 
+routes.delete("/laudo/deletar_foto/:id", LaudoController.deletarFoto)
+
 routes.put("/laudo/:id/salvar_questoes", LaudoController.salvarQuestoes)
 
 routes.put("/laudo/:id", LaudoController.editar)

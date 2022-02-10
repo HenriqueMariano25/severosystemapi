@@ -136,44 +136,19 @@ class LaudoController {
         let imgs = dados.imgs
         let resumo = dados.resumo
 
-        if(resumo.perito_auxiliar){
+        if (resumo.perito_auxiliar) {
             let perito_auxiliar_id = resumo.perito_auxiliar
-            await Laudo.update({ perito_auxiliar_id },
-                {where: {
+            await Laudo.update({perito_auxiliar_id},
+                {
+                    where: {
                         id: laudo_id
-                    }})
-        }
-
-
-        let id_imgs = []
-        for (let img of imgs) {
-            if (img.id !== undefined)
-                id_imgs.push(img.id)
-        }
-
-        let imgsParaDeletar = await ImagemLaudo.findAll({where: {[Op.and]: [{id: {[Op.not]: id_imgs}}, {laudo_id: laudo_id}]}})
-
-        for (let img of imgsParaDeletar) {
-            if (process.env.STORAGE_TYPE === "s3") {
-                const s3 = new aws.S3({
-                    accessKeyId: AWS_ACCESS_KEY_ID,
-                    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-                    region: AWS_DEFAULT_REGION
+                    }
                 })
-                s3.deleteObject({
-                    Bucket: process.env.BUCKET_NAME,
-                    Key: img.nome
-                })
-            } else {
-                fs.unlink((path.resolve(__dirname, '..', '..', 'tmp', 'uploads', img.nome)),
-                    function (err) {
-                        if (err) throw err;
-                    })
-            }
-            await ImagemLaudo.destroy({where: {id: img.id}})
-
         }
+
         const files = req.files
+
+        let imgsRetornadas = []
 
         for (let key in files) {
             let peca_veiculo_id = req.body.peca_veiculo_id[key]
@@ -204,32 +179,52 @@ class LaudoController {
                 url = `${req.protocol}://${req.get('host')}/files/${nome}`
             }
 
-            await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
+            let img = await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
+            imgsRetornadas.push({img, index: imgs[key].index})
 
         }
-
-        let imgsRetornadas = await ImagemLaudo.findAll({
-            where: {laudo_id: laudo_id},
-            attributes: ['id', 'url', 'nome'],
-            include: [{model: PecaVeiculo, attributes: ['descricao']}],
-            order: [
-                [{model: PecaVeiculo}, 'descricao', 'ASC']
-            ],
-        })
 
         return res.json({imgs: imgsRetornadas})
     }
 
-    async salvarQuestoes(req, res){
-        let { questoes, resumo } = req.body
-        let { id: laudo_id } = req.params
+    async deletarFoto(req, res) {
+        let {id} = req.params
 
-        if(resumo.digitador){
+        let img = await ImagemLaudo.findOne({where: {id}})
+
+        if (process.env.STORAGE_TYPE === "s3") {
+            const s3 = new aws.S3({
+                accessKeyId: AWS_ACCESS_KEY_ID,
+                secretAccessKey: AWS_SECRET_ACCESS_KEY,
+                region: AWS_DEFAULT_REGION
+            })
+            s3.deleteObject({
+                Bucket: process.env.BUCKET_NAME,
+                Key: img.nome
+            })
+        } else {
+            fs.unlink((path.resolve(__dirname, '..', '..', 'tmp', 'uploads', img.nome)),
+                function (err) {
+                    if (err) throw err;
+                })
+        }
+        await ImagemLaudo.destroy({where: {id}})
+
+        return res.status(200).json({img: img})
+    }
+
+    async salvarQuestoes(req, res) {
+        let {questoes, resumo} = req.body
+        let {id: laudo_id} = req.params
+
+        if (resumo.digitador) {
             let digitador_id = resumo.digitador
-            await Laudo.update({ digitador_id },
-                {where: {
-                    id: laudo_id
-                }})
+            await Laudo.update({digitador_id},
+                {
+                    where: {
+                        id: laudo_id
+                    }
+                })
         }
 
         let id_questoes = []
@@ -244,13 +239,13 @@ class LaudoController {
 
         await LaudoQuestao.destroy({where: {[Op.and]: [{id: {[Op.not]: id_questoes}}, {laudo_id: laudo_id}]}})
 
-        return res.json({ 'menssagem': 'Questões salvar com sucesso' })
+        return res.json({'menssagem': 'Questões salvar com sucesso'})
 
     }
 
     async editar(req, res) {
-        let { cliente, proprietario, veiculo, resumo } = req.body
-        let { id: laudo_id } = req.params
+        let {cliente, proprietario, veiculo, resumo} = req.body
+        let {id: laudo_id} = req.params
 
         try {
             let {
