@@ -214,7 +214,13 @@ class LaudoController {
         }else{
             return res.status(400).json({'mensagem': 'Erro ao remover imagem'})
         }
+    }
 
+    async editarPecaImagem(req, res){
+        let { id } = req.params
+        let { peca_id } = req.body
+        let img = await ImagemLaudo.update({ peca_veiculo_id: peca_id }, { where: { id }, returning: true })
+        return res.status(200).json({ img: img[1][0] })
     }
 
     async salvarQuestoes(req, res) {
