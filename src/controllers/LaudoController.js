@@ -189,28 +189,32 @@ class LaudoController {
 
     async deletarFoto(req, res) {
         let {id} = req.params
+        if(id){
+            let img = await ImagemLaudo.findOne({where: {id}})
 
-        let img = await ImagemLaudo.findOne({where: {id}})
-
-        if (process.env.STORAGE_TYPE === "s3") {
-            const s3 = new aws.S3({
-                accessKeyId: AWS_ACCESS_KEY_ID,
-                secretAccessKey: AWS_SECRET_ACCESS_KEY,
-                region: AWS_DEFAULT_REGION
-            })
-            s3.deleteObject({
-                Bucket: process.env.BUCKET_NAME,
-                Key: img.nome
-            })
-        } else {
-            fs.unlink((path.resolve(__dirname, '..', '..', 'tmp', 'uploads', img.nome)),
-                function (err) {
-                    if (err) throw err;
+            if (process.env.STORAGE_TYPE === "s3") {
+                const s3 = new aws.S3({
+                    accessKeyId: AWS_ACCESS_KEY_ID,
+                    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+                    region: AWS_DEFAULT_REGION
                 })
-        }
-        await ImagemLaudo.destroy({where: {id}})
+                s3.deleteObject({
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: img.nome
+                })
+            } else {
+                fs.unlink((path.resolve(__dirname, '..', '..', 'tmp', 'uploads', img.nome)),
+                    function (err) {
+                        if (err) throw err;
+                    })
+            }
+            await ImagemLaudo.destroy({where: {id}})
 
-        return res.status(200).json({img: img})
+            return res.status(200).json({img: img})
+        }else{
+            return res.status(400).json({'mensagem': 'Erro ao remover imagem'})
+        }
+
     }
 
     async salvarQuestoes(req, res) {
