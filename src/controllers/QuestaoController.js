@@ -59,7 +59,9 @@ class QuestaoController {
         let questoes = await Questao.findAll({
             include: [{
                 model: Gravidade
-            }, {model: TipoVeiculo}]
+            }, {model: TipoVeiculo}],
+            order: [
+                ['titulo']]
         })
 
         return res.status(200).json({questoes: questoes})
