@@ -367,10 +367,17 @@ class LaudoController {
         let laudos = await Laudo.findAll({
             include: [{
                 model: Veiculo,
-                include: [{model: TipoVeiculo, attributes: ['descricao']}]
+                include: [{model: TipoVeiculo, attributes: ['descricao']}],
+                attributes: { exclude: ['createdAt', 'updatedAt']}
             },
-                {model: Cliente},
-                {model: StatusLaudo},
+                {
+                    model: Cliente,
+                    attributes: { exclude: ['createdAt', 'updatedAt']}
+                },
+                {
+                    model: StatusLaudo,
+                    attributes: ['id', 'descricao']
+                },
                 {
                     model: Usuario,
                     as: 'perito',
