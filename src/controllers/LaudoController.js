@@ -132,6 +132,8 @@ class LaudoController {
 
     async salvarFotos(req, res) {
         let dados = JSON.parse(req.body.data)
+
+        // console.log(dados)
         let {laudo_id} = dados
         let imgs = dados.imgs
         let resumo = dados.resumo
@@ -151,7 +153,7 @@ class LaudoController {
         let imgsRetornadas = []
 
         for (let key in files) {
-            let peca_veiculo_id = req.body.peca_veiculo_id[key]
+            let peca_veiculo = dados.imgs[key].nome
             let nomeFormatado = `${dayjs().format('DDMMYYYYHHmmssSSS')}-${files[key].originalname}`
             let url = ''
             let nome = nomeFormatado
@@ -178,9 +180,13 @@ class LaudoController {
             if (!url) {
                 url = `${req.protocol}://${req.get('host')}/files/${nome}`
             }
+            try{
+                let img = await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo, peca_veiculo_id: 1})
+                imgsRetornadas.push({img, index: imgs[key].index})
+            }catch (e) {
+                console.log(e)
+            }
 
-            let img = await ImagemLaudo.create({url, nome: nome, laudo_id, peca_veiculo_id})
-            imgsRetornadas.push({img, index: imgs[key].index})
 
         }
 
@@ -420,13 +426,7 @@ class LaudoController {
                 },
                 {
                     model: ImagemLaudo,
-                    order: [
-                        [{model: PecaVeiculo}, 'descricao', 'ASC']
-                    ],
-                    include: {
-                        model: PecaVeiculo,
-                        attributes: ['descricao']
-                    },
+                    attributes: ['peca_veiculo', 'url', 'id']
                 },
                 {
                     model: Veiculo,

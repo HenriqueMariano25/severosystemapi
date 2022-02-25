@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             url: DataTypes.STRING,
             nome: DataTypes.STRING,
+            peca_veiculo: DataTypes.STRING,
         },
         {
             freezeTableName: true,
