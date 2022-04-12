@@ -16,9 +16,6 @@ class AppController {
     this.express.use(cors())
     this.express.use((req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*")
-      res.header("Access-Control-Allow-Methods", "*")
-      res.header(" Access-Control-Allow-Headers ", "*")
-      console.log("Estou aqui")
       this.express.use(cors())
       next()
     })
