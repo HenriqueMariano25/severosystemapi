@@ -23,6 +23,7 @@ class AppController {
       "/files",
       express.static(path.resolve(__dirname, "..", "tmp", "uploads"))
     )
+    this.express.use("/files", express.static(path.resolve(__dirname, "..", "images")))
   }
 
   routes() {
