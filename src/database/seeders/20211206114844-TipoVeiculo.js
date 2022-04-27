@@ -1,4 +1,4 @@
-'use strict';
+"use strict"
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -7,24 +7,30 @@ module.exports = {
         descricao: "Carro",
         icone: "mdi-car-side",
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       },
       {
         descricao: "Moto",
         icone: "mdi-motorbike",
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       },
       {
         descricao: "Caminhão",
         icone: "mdi-truck",
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
+      },
+      {
+        descricao: "Leilão",
+        icone: "mdi-gavel",
+        created_at: new Date(),
+        updated_at: new Date(),
       },
     ])
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('TipoVeiculo', null, {});
-  }
-};
+    return queryInterface.bulkDelete("TipoVeiculo", null, {})
+  },
+}

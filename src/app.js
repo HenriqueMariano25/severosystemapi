@@ -33,6 +33,7 @@ class AppController {
     this.express.use(require("./routes/servicoRouter"))
     this.express.use(require("./routes/pecaVeiculoRouter"))
     this.express.use(require("./routes/laudoRouter"))
+    this.express.use(require("./routes/leilaoRouter"))
     this.express.use(require("./routes/usuarioRouter"))
   }
 }

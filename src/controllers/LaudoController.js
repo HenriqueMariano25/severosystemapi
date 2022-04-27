@@ -172,7 +172,9 @@ class LaudoController {
       //     nome = data["Key"]
 
       if (process.env.STORAGE_TYPE === "production") {
-        await sharp(files[key].buffer).toFile(path.resolve("images/", nomeFormatado))
+        await sharp(files[key].buffer).toFile(
+          path.resolve("../../../../../../home/hmsplay/images", nomeFormatado)
+        )
       } else if (process.env.STORAGE_TYPE === "local") {
         await sharp(files[key].buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
       }
@@ -214,7 +216,7 @@ class LaudoController {
 
       if (process.env.STORAGE_TYPE === "production") {
         fs.unlink(
-          path.resolve(__dirname, "..", "..", "images", img.nome),
+          path.resolve(__dirname, "..", "..", "..", "images", img.nome),
           function (err) {
             if (err) throw err
           }
@@ -396,6 +398,54 @@ class LaudoController {
 
   async buscarTodos(req, res) {
     let laudos = await Laudo.findAll({
+      where: {
+        tipo_servico_id: { [Op.not]: [2] },
+      },
+      include: [
+        {
+          model: Veiculo,
+          include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+        {
+          model: Cliente,
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+        {
+          model: StatusLaudo,
+          attributes: ["id", "descricao"],
+        },
+        {
+          model: Usuario,
+          as: "perito",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "perito_auxiliar",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "digitador",
+          attributes: ["nome"],
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+
+    return res.status(200).json({ laudos: laudos })
+  }
+
+  async buscarTodosCliente(req, res) {
+    console.log(req.query.cliente_id)
+
+    let { cliente_id } = req.query
+
+    let laudos = await Laudo.findAll({
+      where: {
+        cliente_id: cliente_id,
+      },
       include: [
         {
           model: Veiculo,
