@@ -17,7 +17,7 @@ class LeilaoController {
       let configuracao
 
       if (!configuracaoEncontrada) {
-        configuracaoCriada = await ConfiguracaoLeilao.create({
+        let configuracaoCriada = await ConfiguracaoLeilao.create({
           cliente_leilao_id: cliente.id,
           perito_id: perito.id,
         })
