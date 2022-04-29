@@ -11,8 +11,8 @@ class AppController {
   }
 
   middlewares() {
-    this.express.use(express.json())
-    this.express.use(express.urlencoded({ extended: true }))
+    this.express.use(express.json({limit: "500mb"})))
+    this.express.use(express.urlencoded({ extended: true, parameterLimit:500000, limit: "500mb" }))
     this.express.use(cors())
     this.express.use((req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*")

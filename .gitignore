@@ -7,3 +7,4 @@ package-lock.json
 __tests__/database.sqlite
 
 tmp/uploads/*
+images/

@@ -172,16 +172,15 @@ class LaudoController {
       //     nome = data["Key"]
 
       if (process.env.STORAGE_TYPE === "production") {
-        await sharp(files[key].buffer).toFile(
-          path.resolve("../../../../../../home/hmsplay/images", nomeFormatado)
-        )
+        await sharp(files[key].buffer).toFile(path.resolve("../images", nomeFormatado))
       } else if (process.env.STORAGE_TYPE === "local") {
         await sharp(files[key].buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
       }
 
-      if (!url) {
-        url = `${req.protocol}://${req.get("host")}/files/${nome}`
-      }
+      // if (!url) {
+      //   url = `${req.protocol}://${req.get("host")}/files/${nome}`
+      // }
+      url = `${req.protocol}://34.133.187.238/api/files/${nome}`
       try {
         let img = await ImagemLaudo.create({
           url,
