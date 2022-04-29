@@ -53,6 +53,8 @@ const uploadToAWS = (props) => {
 
 class LaudoController {
   async cadastrar(req, res) {
+    let { tipo_servico_id } = req.body
+
     let {
       placa,
       ano,
@@ -118,6 +120,7 @@ class LaudoController {
         prop_email,
         veiculo_id,
         status_laudo_id: 1,
+        tipo_servico_id,
       })
 
       return res.status(200).json({ laudo_id, veiculo_id })
