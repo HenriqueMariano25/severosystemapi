@@ -147,9 +147,12 @@ class UsuarioController {
       where: { usuario: usuarioCriado },
     })
 
-    const clienteVinculado = await ClienteUsuario.findOne({
-      where: { usuario_id: usuario.id },
-    })
+    let clienteVinculado
+    if (usuario) {
+      clienteVinculado = await ClienteUsuario.findOne({
+        where: { usuario_id: usuario.id },
+      })
+    }
 
     if (!usuario)
       return res

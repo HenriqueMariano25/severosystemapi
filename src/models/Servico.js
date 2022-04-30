@@ -1,17 +1,20 @@
 module.exports = (sequelize, DataTypes) => {
-    const Servico = sequelize.define("Servico", {
-            valor: DataTypes.STRING,
-        },
-        {
-            freezeTableName: true,
-        }
-    )
-
-    Servico.associate = models => {
-        Servico.belongsTo(models.TipoServico, {
-            foreignKey: 'tipo_servico_id',
-        })
+  const Servico = sequelize.define(
+    "Servico",
+    {
+      valor: DataTypes.STRING,
+    },
+    {
+      freezeTableName: true,
+      paranoid: true,
     }
+  )
 
-    return Servico
+  Servico.associate = (models) => {
+    Servico.belongsTo(models.TipoServico, {
+      foreignKey: "tipo_servico_id",
+    })
+  }
+
+  return Servico
 }

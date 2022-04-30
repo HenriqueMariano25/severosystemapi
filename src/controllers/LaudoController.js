@@ -522,7 +522,7 @@ class LaudoController {
 
       laudo.destroy()
 
-      return res.status(200).json({ laudo: laudo })
+      return res.status(200).json({ laudo: "laudo" })
     } catch (e) {
       console.log(e)
       return res.status(400).json({ mensagem: "Erro ao deletar Laudo!" })

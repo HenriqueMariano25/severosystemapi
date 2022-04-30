@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       freezeTableName: true,
+      paranoid: true,
       hooks: {
         beforeSave: async (usuario) => {
           if (usuario.senha) {
