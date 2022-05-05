@@ -183,7 +183,7 @@ class LaudoController {
       // if (!url) {
       //   url = `${req.protocol}://${req.get("host")}/files/${nome}`
       // }
-      url = `${req.protocol}://34.133.187.238/api/files/${nome}`
+      url = `${req.protocol}://35.232.68.251/api/files/${nome}`
       try {
         let img = await ImagemLaudo.create({
           url,
