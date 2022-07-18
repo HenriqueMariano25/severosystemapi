@@ -1,6 +1,7 @@
 const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario } = require("../models")
 const { Op } = require("sequelize")
 const Sequelize = require("sequelize")
+const bcrypt = require("bcryptjs")
 
 class UsuarioController {
   async cadastrar(req, res) {
@@ -95,7 +96,6 @@ class UsuarioController {
     const usuario = await Usuario.findOne({ where: { id } })
 
     if (!usuario) return res.status(400).json({ message: "Usuário não encontrado" })
-
     return res.status(200).json({ usuario })
   }
 
@@ -146,7 +146,7 @@ class UsuarioController {
     const usuario = await Usuario.findOne({
       where: { usuario: usuarioCriado },
     })
-
+    console.log('teste')
     let clienteVinculado
     if (usuario) {
       clienteVinculado = await ClienteUsuario.findOne({

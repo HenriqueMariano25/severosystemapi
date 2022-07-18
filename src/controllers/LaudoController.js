@@ -154,9 +154,8 @@ class LaudoController {
 
     for (let key in files) {
       let peca_veiculo = dados.imgs[key].nome
-      let nomeFormatado = `${dayjs().format("DDMMYYYYHHmmssSSS")}-${
-        files[key].originalname
-      }`
+      let nomeFormatado = `${dayjs().format("DDMMYYYYHHmmssSSS")}-${files[key].originalname
+        }`
       let url = ""
       let nome = nomeFormatado
 
@@ -434,6 +433,51 @@ class LaudoController {
         },
       ],
       order: [["id", "DESC"]],
+    })
+
+    return res.status(200).json({ laudos: laudos })
+  }
+
+  async paginacao(req, res) {
+    const { page, size } = req.query
+
+    const laudos = await Laudo.findAndCountAll({
+      where: {
+        tipo_servico_id: { [Op.not]: [2] },
+      },
+      limit: size,
+      offset: page * size,
+      include: [
+        {
+          model: Veiculo,
+          include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+        {
+          model: Cliente,
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+        {
+          model: StatusLaudo,
+          attributes: ["id", "descricao"],
+        },
+        {
+          model: Usuario,
+          as: "perito",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "perito_auxiliar",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "digitador",
+          attributes: ["nome"],
+        },
+      ],
+      order: [["id"]],
     })
 
     return res.status(200).json({ laudos: laudos })

@@ -23,6 +23,8 @@ routes.put("/laudo/:id", LaudoController.editar)
 
 routes.get("/laudos", LaudoController.buscarTodos)
 
+routes.get("/laudos/paginacao/", LaudoController.paginacao)
+
 routes.get("/laudos/cliente", LaudoController.buscarTodosCliente)
 
 routes.get("/laudo/:id", LaudoController.buscar)
