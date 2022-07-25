@@ -30,7 +30,6 @@ class LeilaoController {
           ],
           attributes: ["cliente_leilao_id", "id", "perito_id"],
         })
-        console.log(configuracao)
       } else {
         await ConfiguracaoLeilao.update(
           {
@@ -47,7 +46,6 @@ class LeilaoController {
           ],
           attributes: ["cliente_leilao_id", "id", "perito_id"],
         })
-        console.log(configuracao)
       }
 
       return res.status(200).json({ configuracao: configuracao })
@@ -142,11 +140,9 @@ class LeilaoController {
       cambio_atual,
     } = req.body.veiculo
     try {
-      let veiculoEncontrado = await Veiculo.findOne({ where: { placa } })
 
       let veiculo_id
 
-      if (!veiculoEncontrado) {
         let veiculoCriado = await Veiculo.create({
           placa,
           ano,
@@ -165,9 +161,6 @@ class LeilaoController {
           tipo_veiculo_id: 4,
         })
         veiculo_id = veiculoCriado.id
-      } else {
-        veiculo_id = veiculoEncontrado.id
-      }
 
       let { id: cliente_id } = req.body.cliente
 
@@ -263,14 +256,6 @@ class LeilaoController {
       return res.status(400).json({ mensagem: "Erro ao editar laudo" })
     }
   }
-
-  // async editarConfiguracoes(req, res) {
-  //   let { cliente, perito } = req.body
-
-  //   console.log(cliente)
-  //   console.log(perito)
-  //   console.log(id)
-  // }
 }
 
 module.exports = new LeilaoController()

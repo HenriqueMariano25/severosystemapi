@@ -23,6 +23,11 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date()
       },
+      {
+        descricao: "Cliente",
+        created_at: new Date(),
+        updated_at: new Date()
+      },
     ])
   },
 

@@ -440,8 +440,6 @@ class LaudoController {
   }
 
   async buscarTodosCliente(req, res) {
-    console.log(req.query.cliente_id)
-
     let { cliente_id } = req.query
 
     let laudos = await Laudo.findAll({

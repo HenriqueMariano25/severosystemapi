@@ -37,8 +37,6 @@ class UsuarioController {
       perito_auxiliar,
     })
 
-    console.log(cliente)
-
     if (tipo_usuario_id === 5) {
       await ClienteUsuario.create({ cliente_id: cliente.id, usuario_id: usuario.id })
     }
