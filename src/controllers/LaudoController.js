@@ -132,6 +132,7 @@ class LaudoController {
 
   async salvarFotos(req, res) {
     let dados = JSON.parse(req.body.data)
+
     let { laudo_id } = dados
     let imgs = dados.imgs
     let resumo = dados.resumo
