@@ -29,4 +29,5 @@ routes.get("/laudo/:id", LaudoController.buscar)
 
 routes.delete("/laudo/:id", LaudoController.deletar)
 
+
 module.exports = routes

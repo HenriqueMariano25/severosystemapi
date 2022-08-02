@@ -80,7 +80,7 @@ class LeilaoController {
   async buscarLaudoLeilao(req, res) {
     try {
       let laudos = await Laudo.findAll({
-        where: { tipo_servico_id: 2 },
+        where: { tipo_servico_id: 3 },
         include: [
           {
             model: Veiculo,
@@ -167,7 +167,7 @@ class LeilaoController {
       let { id: laudo_id } = await Laudo.create({
         cliente_id,
         veiculo_id,
-        tipo_servico_id: 2,
+        tipo_servico_id: 3,
         status_laudo_id: 1,
       })
 

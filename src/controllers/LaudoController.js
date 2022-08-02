@@ -399,46 +399,46 @@ class LaudoController {
     return res.status(200).json({ laudo })
   }
 
-  async buscarTodos(req, res) {
-    let laudos = await Laudo.findAll({
-      where: {
-        tipo_servico_id: { [Op.not]: [2] },
-      },
-      include: [
-        {
-          model: Veiculo,
-          include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
-          attributes: { exclude: ["createdAt", "updatedAt"] },
-        },
-        {
-          model: Cliente,
-          attributes: { exclude: ["createdAt", "updatedAt"] },
-        },
-        {
-          model: StatusLaudo,
-          attributes: ["id", "descricao"],
-        },
-        {
-          model: Usuario,
-          as: "perito",
-          attributes: ["nome"],
-        },
-        {
-          model: Usuario,
-          as: "perito_auxiliar",
-          attributes: ["nome"],
-        },
-        {
-          model: Usuario,
-          as: "digitador",
-          attributes: ["nome"],
-        },
-      ],
-      order: [["id", "DESC"]],
-    })
-
-    return res.status(200).json({ laudos: laudos })
-  }
+  // async buscarTodos(req, res) {
+  //   let laudos = await Laudo.findAll({
+  //     where: {
+  //       tipo_servico_id: { [Op.not]: [2] },
+  //     },
+  //     include: [
+  //       {
+  //         model: Veiculo,
+  //         include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+  //         attributes: { exclude: ["createdAt", "updatedAt"] },
+  //       },
+  //       {
+  //         model: Cliente,
+  //         attributes: { exclude: ["createdAt", "updatedAt"] },
+  //       },
+  //       {
+  //         model: StatusLaudo,
+  //         attributes: ["id", "descricao"],
+  //       },
+  //       {
+  //         model: Usuario,
+  //         as: "perito",
+  //         attributes: ["nome"],
+  //       },
+  //       {
+  //         model: Usuario,
+  //         as: "perito_auxiliar",
+  //         attributes: ["nome"],
+  //       },
+  //       {
+  //         model: Usuario,
+  //         as: "digitador",
+  //         attributes: ["nome"],
+  //       },
+  //     ],
+  //     order: [["id", "DESC"]],
+  //   })
+  //
+  //   return res.status(200).json({ laudos: laudos })
+  // }
 
   async buscarTodosCliente(req, res) {
     let { cliente_id } = req.query
@@ -526,6 +526,54 @@ class LaudoController {
       console.log(e)
       return res.status(400).json({ mensagem: "Erro ao deletar Laudo!" })
     }
+  }
+
+  async buscarTodos(req, res) {
+    const { page, size } = req.query
+
+    console.log(page)
+    console.log(size)
+
+    const laudos = await Laudo.findAndCountAll({
+      where: {
+        tipo_servico_id: { [Op.not]: [3] },
+      },
+      limit: size,
+      offset: page * size,
+      include: [
+        {
+          model: Veiculo,
+          include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+        {
+          model: Cliente,
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+        {
+          model: StatusLaudo,
+          attributes: ["id", "descricao"],
+        },
+        {
+          model: Usuario,
+          as: "perito",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "perito_auxiliar",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "digitador",
+          attributes: ["nome"],
+        },
+      ],
+      order: [["id"]],
+    })
+
+    return res.status(200).json({ laudos: laudos })
   }
 }
 
