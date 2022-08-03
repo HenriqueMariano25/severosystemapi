@@ -169,6 +169,22 @@ class UsuarioController {
       clienteVinculado: clienteVinculado,
     })
   }
+
+  async alterarSenha(req, res) {
+    let { senhaAtual, novaSenha, usuarioId } = req.body
+
+    const usuario = await Usuario.findOne({
+      where: { id: usuarioId },
+    })
+
+    if (!(await usuario.verificarSenha(senhaAtual))) {
+      return res.status(401).json({ message: "Senha incorreta", type: "invalid_data" })
+    }
+
+    await usuario.update({ senha: novaSenha })
+
+    return res.status(200).json({ usuario })
+  }
 }
 
 module.exports = new UsuarioController()

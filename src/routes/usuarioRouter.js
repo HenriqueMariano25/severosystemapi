@@ -3,6 +3,8 @@ const UsuarioController = require("../controllers/UsuarioController")
 
 routes.get("/usuario/login/", UsuarioController.login)
 
+routes.put("/usuario/alterar_senha", UsuarioController.alterarSenha)
+
 routes.post("/usuario",UsuarioController.cadastrar)
 
 routes.put("/usuario/:id", UsuarioController.editar)
