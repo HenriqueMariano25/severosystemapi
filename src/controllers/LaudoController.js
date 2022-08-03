@@ -16,7 +16,7 @@ const path = require("path")
 const sharp = require("sharp")
 const aws = require("aws-sdk")
 const fs = require("fs")
-const { Op } = require("sequelize")
+const { Op, Sequelize } = require("sequelize")
 
 const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION } = process.env
 
@@ -402,7 +402,7 @@ class LaudoController {
   // async buscarTodos(req, res) {
   //   let laudos = await Laudo.findAll({
   //     where: {
-  //       tipo_servico_id: { [Op.not]: [2] },
+  //       tipo_servico_id: { [Op.not]: [3] },
   //     },
   //     include: [
   //       {
@@ -441,12 +441,14 @@ class LaudoController {
   // }
 
   async buscarTodosCliente(req, res) {
-    let { cliente_id } = req.query
+    let { cliente_id, page, size } = req.query
 
-    let laudos = await Laudo.findAll({
+    let laudos = await Laudo.findAndCountAll({
       where: {
         cliente_id: cliente_id,
       },
+      limit: size,
+      offset: page * size,
       include: [
         {
           model: Veiculo,
@@ -481,6 +483,65 @@ class LaudoController {
     })
 
     return res.status(200).json({ laudos: laudos })
+  }
+
+  async buscarEspecificoCliente(req, res){
+    let { cliente_id, busca } = req.query
+
+    try{
+      const laudos = await Laudo.findAndCountAll({
+        where: {
+          cliente_id: cliente_id,
+          [Op.or]: [
+            {'$Veiculo.placa$': {[Op.like]:'%'+ busca +'%'}},
+            {'$Veiculo.marca_modelo$': {[Op.like]:'%'+ busca +'%'}},
+            {'$Veiculo.chassi_bin$': {[Op.like]:'%'+ busca +'%'}},
+            {'$Veiculo.chassi_atual$': {[Op.like]:'%'+ busca +'%'}},
+            {'$Cliente.nome_razao_social$': {[Op.like]:'%'+ busca +'%'}},
+            {'$perito.nome$': {[Op.like]:'%'+ busca +'%'}},
+            {'$perito_auxiliar.nome$': {[Op.like]:'%'+ busca +'%'}},
+            {'$digitador.nome$': {[Op.like]:'%'+ busca +'%'}},
+          ]
+        },
+        include: [
+          {
+            model: Veiculo,
+            include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+          },
+          {
+            model: Cliente,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+          },
+          {
+            model: StatusLaudo,
+            attributes: ["id", "descricao"],
+          },
+          {
+            model: Usuario,
+            as: "perito",
+            attributes: ["nome"],
+          },
+          {
+            model: Usuario,
+            as: "perito_auxiliar",
+            attributes: ["nome"],
+          },
+          {
+            model: Usuario,
+            as: "digitador",
+            attributes: ["nome"],
+          },
+        ],
+        order: [["id"]],
+      })
+
+      return res.status(200).json({ laudos: laudos})
+    }catch (error) {
+      console.log(error)
+
+      return res.status(500).json({ mensagem: error})
+    }
   }
 
   async buscar(req, res) {
@@ -531,9 +592,6 @@ class LaudoController {
   async buscarTodos(req, res) {
     const { page, size } = req.query
 
-    console.log(page)
-    console.log(size)
-
     const laudos = await Laudo.findAndCountAll({
       where: {
         tipo_servico_id: { [Op.not]: [3] },
@@ -574,6 +632,65 @@ class LaudoController {
     })
 
     return res.status(200).json({ laudos: laudos })
+  }
+
+  async buscarEspecifico(req, res){
+    let { busca } = req.query
+
+    try{
+      const laudos = await Laudo.findAndCountAll({
+        where: {
+          tipo_servico_id: { [Op.not]: [3] },
+          [Op.or]: [
+              {'$Veiculo.placa$': {[Op.like]:'%'+ busca +'%'}},
+              {'$Veiculo.marca_modelo$': {[Op.like]:'%'+ busca +'%'}},
+              {'$Veiculo.chassi_bin$': {[Op.like]:'%'+ busca +'%'}},
+              {'$Veiculo.chassi_atual$': {[Op.like]:'%'+ busca +'%'}},
+              {'$Cliente.nome_razao_social$': {[Op.like]:'%'+ busca +'%'}},
+              {'$perito.nome$': {[Op.like]:'%'+ busca +'%'}},
+              {'$perito_auxiliar.nome$': {[Op.like]:'%'+ busca +'%'}},
+              {'$digitador.nome$': {[Op.like]:'%'+ busca +'%'}},
+          ]
+        },
+        include: [
+          {
+            model: Veiculo,
+            include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+          },
+          {
+            model: Cliente,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+          },
+          {
+            model: StatusLaudo,
+            attributes: ["id", "descricao"],
+          },
+          {
+            model: Usuario,
+            as: "perito",
+            attributes: ["nome"],
+          },
+          {
+            model: Usuario,
+            as: "perito_auxiliar",
+            attributes: ["nome"],
+          },
+          {
+            model: Usuario,
+            as: "digitador",
+            attributes: ["nome"],
+          },
+        ],
+        order: [["id"]],
+      })
+
+      return res.status(200).json({ laudos: laudos})
+    }catch (error) {
+      console.log(error)
+
+      return res.status(500).json({ mensagem: error})
+    }
   }
 }
 

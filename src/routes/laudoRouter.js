@@ -25,9 +25,13 @@ routes.get("/laudos", LaudoController.buscarTodos)
 
 routes.get("/laudos/cliente", LaudoController.buscarTodosCliente)
 
+routes.get("/laudos/cliente/busca", LaudoController.buscarEspecificoCliente)
+
 routes.get("/laudo/:id", LaudoController.buscar)
 
 routes.delete("/laudo/:id", LaudoController.deletar)
+
+routes.get("/laudos/busca", LaudoController.buscarEspecifico)
 
 
 module.exports = routes
