@@ -628,7 +628,7 @@ class LaudoController {
           attributes: ["nome"],
         },
       ],
-      order: [["id"]],
+      order: [["id", "DESC"]],
     })
 
     return res.status(200).json({ laudos: laudos })
@@ -682,7 +682,7 @@ class LaudoController {
             attributes: ["nome"],
           },
         ],
-        order: [["id"]],
+        order: [["id", "DESC"]],
       })
 
       return res.status(200).json({ laudos: laudos})
