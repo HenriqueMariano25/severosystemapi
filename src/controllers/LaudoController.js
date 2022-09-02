@@ -7,9 +7,9 @@ const {
   StatusLaudo,
   Questao,
   TipoVeiculo,
-  PecaVeiculo,
   Usuario,
   Gravidade,
+  TipoServico
 } = require("../models")
 const dayjs = require("dayjs")
 const path = require("path")
@@ -155,9 +155,8 @@ class LaudoController {
 
     for (let key in files) {
       let peca_veiculo = dados.imgs[key].nome
-      let nomeFormatado = `${dayjs().format("DDMMYYYYHHmmssSSS")}-${
-        files[key].originalname
-      }`
+      let nomeFormatado = `${dayjs().format("DDMMYYYYHHmmssSSS")}-${files[key].originalname
+        }`
       let url = ""
       let nome = nomeFormatado
 
@@ -485,22 +484,22 @@ class LaudoController {
     return res.status(200).json({ laudos: laudos })
   }
 
-  async buscarEspecificoCliente(req, res){
+  async buscarEspecificoCliente(req, res) {
     let { cliente_id, busca } = req.query
 
-    try{
+    try {
       const laudos = await Laudo.findAndCountAll({
         where: {
           cliente_id: cliente_id,
           [Op.or]: [
-            {'$Veiculo.placa$': {[Op.like]:'%'+ busca +'%'}},
-            {'$Veiculo.marca_modelo$': {[Op.like]:'%'+ busca +'%'}},
-            {'$Veiculo.chassi_bin$': {[Op.like]:'%'+ busca +'%'}},
-            {'$Veiculo.chassi_atual$': {[Op.like]:'%'+ busca +'%'}},
-            {'$Cliente.nome_razao_social$': {[Op.like]:'%'+ busca +'%'}},
-            {'$perito.nome$': {[Op.like]:'%'+ busca +'%'}},
-            {'$perito_auxiliar.nome$': {[Op.like]:'%'+ busca +'%'}},
-            {'$digitador.nome$': {[Op.like]:'%'+ busca +'%'}},
+            { '$Veiculo.placa$': { [Op.like]: '%' + busca + '%' } },
+            { '$Veiculo.marca_modelo$': { [Op.like]: '%' + busca + '%' } },
+            { '$Veiculo.chassi_bin$': { [Op.like]: '%' + busca + '%' } },
+            { '$Veiculo.chassi_atual$': { [Op.like]: '%' + busca + '%' } },
+            { '$Cliente.nome_razao_social$': { [Op.like]: '%' + busca + '%' } },
+            { '$perito.nome$': { [Op.like]: '%' + busca + '%' } },
+            { '$perito_auxiliar.nome$': { [Op.like]: '%' + busca + '%' } },
+            { '$digitador.nome$': { [Op.like]: '%' + busca + '%' } },
           ]
         },
         include: [
@@ -536,11 +535,11 @@ class LaudoController {
         order: [["id"]],
       })
 
-      return res.status(200).json({ laudos: laudos})
-    }catch (error) {
+      return res.status(200).json({ laudos: laudos })
+    } catch (error) {
       console.log(error)
 
-      return res.status(500).json({ mensagem: error})
+      return res.status(500).json({ mensagem: error })
     }
   }
 
@@ -627,6 +626,10 @@ class LaudoController {
           as: "digitador",
           attributes: ["nome"],
         },
+        {
+          model: TipoServico,
+          attributes: ["descricao"],
+        },
       ],
       order: [["id", "DESC"]],
     })
@@ -634,22 +637,22 @@ class LaudoController {
     return res.status(200).json({ laudos: laudos })
   }
 
-  async buscarEspecifico(req, res){
+  async buscarEspecifico(req, res) {
     let { busca } = req.query
 
-    try{
+    try {
       const laudos = await Laudo.findAndCountAll({
         where: {
           tipo_servico_id: { [Op.not]: [3] },
           [Op.or]: [
-              {'$Veiculo.placa$': {[Op.like]:'%'+ busca +'%'}},
-              {'$Veiculo.marca_modelo$': {[Op.like]:'%'+ busca +'%'}},
-              {'$Veiculo.chassi_bin$': {[Op.like]:'%'+ busca +'%'}},
-              {'$Veiculo.chassi_atual$': {[Op.like]:'%'+ busca +'%'}},
-              {'$Cliente.nome_razao_social$': {[Op.like]:'%'+ busca +'%'}},
-              {'$perito.nome$': {[Op.like]:'%'+ busca +'%'}},
-              {'$perito_auxiliar.nome$': {[Op.like]:'%'+ busca +'%'}},
-              {'$digitador.nome$': {[Op.like]:'%'+ busca +'%'}},
+            { '$Veiculo.placa$': { [Op.like]: '%' + busca + '%' } },
+            { '$Veiculo.marca_modelo$': { [Op.like]: '%' + busca + '%' } },
+            { '$Veiculo.chassi_bin$': { [Op.like]: '%' + busca + '%' } },
+            { '$Veiculo.chassi_atual$': { [Op.like]: '%' + busca + '%' } },
+            { '$Cliente.nome_razao_social$': { [Op.like]: '%' + busca + '%' } },
+            { '$perito.nome$': { [Op.like]: '%' + busca + '%' } },
+            { '$perito_auxiliar.nome$': { [Op.like]: '%' + busca + '%' } },
+            { '$digitador.nome$': { [Op.like]: '%' + busca + '%' } },
           ]
         },
         include: [
@@ -685,11 +688,11 @@ class LaudoController {
         order: [["id", "DESC"]],
       })
 
-      return res.status(200).json({ laudos: laudos})
-    }catch (error) {
+      return res.status(200).json({ laudos: laudos })
+    } catch (error) {
       console.log(error)
 
-      return res.status(500).json({ mensagem: error})
+      return res.status(500).json({ mensagem: error })
     }
   }
 }
