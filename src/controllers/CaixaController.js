@@ -83,14 +83,8 @@ class CaixaController {
     }
 
     async alterarCaixaDia(req, res) {
-        console.log("aqui")
-        console.log(req.body)
-        console.log(req.params)
 
         try {
-            // codigo abaixao serve para alterar todos de uma vez (cuidado!!)
-            // const dados = await CaixaDia.update(req.body, { where: req.params.id == 0 ? {} : { id: req.params.id } })
-
             const dados = await CaixaDia.update(req.body,
                 { where: { id: req.params.id } })
             return res.status(200).json({ falha: false, dados: dados })
