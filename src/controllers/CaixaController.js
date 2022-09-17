@@ -263,9 +263,18 @@ class CaixaController {
     }
 
     async alterarLancamento(req, res) {
+        let { id: pagamento_id } = req.body.pagamento[0]
+
         try {
-            const dados = await CaixaLancamento.update(req.body, { where: { id: req.params.id } })
-            return res.status(200).json({ falha: false, dados: dados })
+            await CaixaLancamento.update(req.body.lancamento, { where: { id: req.params.id } })
+            await CaixaFormaLanc.update(req.body.pagamento[0], { where: { id: pagamento_id } })
+
+            const lancamento = await CaixaLancamento.findOne({
+                where: { id: req.params.id }, include: [
+                    { model: CaixaCategoria, as: 'categoria', attributes: ['descricao', 'id'] },
+                ],
+            })
+            return res.status(200).json({ falha: false, dados: lancamento })
         } catch (error) {
             return res.status(500).json({ falha: true, erro: error })
         }
