@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         'CaixaLancamento',
         {
             descricao: DataTypes.STRING,
-            valor: DataTypes.DECIMAL(10, 2),
+            valor: DataTypes.FLOAT,
 
         },
         {

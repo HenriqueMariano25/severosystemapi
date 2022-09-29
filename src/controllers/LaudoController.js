@@ -9,7 +9,8 @@ const {
   TipoVeiculo,
   Usuario,
   Gravidade,
-  TipoServico
+  TipoServico,
+  CaixaLancamento
 } = require("../models")
 const dayjs = require("dayjs")
 const path = require("path")
@@ -570,7 +571,11 @@ class LaudoController {
         },
       ],
     })
-    return res.status(200).json({ laudo: laudo })
+
+    let codigoLaudo = ("000000000" + id).slice(-9)
+    let lancamento = await CaixaLancamento.findOne({ where:{ descricao: {[Op.substring]:codigoLaudo}  }})
+
+    return res.status(200).json({ laudo: laudo, lancamento: lancamento })
   }
 
   async deletar(req, res) {
