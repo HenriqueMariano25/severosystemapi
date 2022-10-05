@@ -5,7 +5,7 @@ let {
   Veiculo,
   Laudo,
   TipoVeiculo,
-  StatusLaudo,
+  StatusLaudo, TipoServico,
 } = require("../models")
 
 class LeilaoController {
@@ -109,6 +109,10 @@ class LeilaoController {
             model: Usuario,
             as: "digitador",
             attributes: ["nome"],
+          },
+          {
+            model: TipoServico,
+            attributes: ["descricao"],
           },
         ],
         order: [["id", "DESC"]],

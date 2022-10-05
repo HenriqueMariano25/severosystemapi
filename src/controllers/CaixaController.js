@@ -33,12 +33,13 @@ class CaixaController {
                         as: "lancamentos",
                         attributes: {exclude: ["createdAt", "updatedAt"]},
                         include: [
+                            {model: CaixaCategoria, as: "categoria", attributes: ["descricao", "id"]},
                             {
-                                model: CaixaCategoria,
-                                as: "categoria",
-                                attributes: ["descricao", "id"],
+                                model: CaixaFormaLanc,
+                                as: "pagamento",
+                                attributes: ['forma_id', 'id'],
+                                include: [{model: CaixaFormaTipo, as: "tipo", attributes: ['descricao']}]
                             },
-                            {model: CaixaFormaLanc, as: "pagamento"},
                         ],
                     },
                     {model: Usuario, attributes: ["nome"]},
@@ -56,8 +57,6 @@ class CaixaController {
 
     async listarCaixaDiaRelatorio(req, res) {
         try {
-            console.log(req.query)
-            console.log(req.params)
             let filtro = JSON.parse(req.query.filtro) || {}
 
             const dados = await CaixaDia.findAll({
@@ -89,8 +88,6 @@ class CaixaController {
                 order: ["id"],
 
             })
-            // console.log(dados[0].lancamentos)
-
 
             let resumo = await CaixaLancamento.findAll({
                 where: {caixadia_id: filtro.id},
@@ -107,9 +104,6 @@ class CaixaController {
                 raw: true,
 
             })
-
-            console.log(resumo)
-
 
             return res.status(200).json({falha: false, dados: dados})
         } catch (error) {
@@ -195,7 +189,9 @@ class CaixaController {
 
         try {
             const dados = await CaixaDia.findOne({
-                where: {usuario_id, data_abertura},
+                where: {
+                    usuario_id,
+                },
                 include: [
                     {
                         model: CaixaLancamento,
@@ -206,14 +202,15 @@ class CaixaController {
                             {
                                 model: CaixaFormaLanc,
                                 as: "pagamento",
-                                attributes: ['forma_id'],
+                                attributes: ['forma_id', 'id'],
                                 include: [{model: CaixaFormaTipo, as: "tipo", attributes: ['descricao']}]
                             },
                         ],
                     },
                 ],
                 order: [
-                    [{model: CaixaLancamento, as: "lancamentos"}, "created_at", "DESC"],
+                    ["createdAt", "DESC"],
+                    [{model: CaixaLancamento, as: "lancamentos"}, "createdAt", "DESC"],
                 ],
             })
 
@@ -345,27 +342,25 @@ class CaixaController {
             const dados = await CaixaLancamento.create(lancamento)
 
             if (pagamento.length) {
-                pagamento.map(async (item) => {
-                    item.lancamento_id = dados.id
-                    await CaixaFormaLanc.create(item)
-                })
+                for(let pag of pagamento){
+                    pag.lancamento_id = dados.id
+
+                    await CaixaFormaLanc.create(pag)
+                }
             }
 
             let lancamentoCriado = await CaixaLancamento.findOne({
                 where: {id: dados.id},
                 include: [
+                    {model: CaixaCategoria, as: "categoria"},
                     {
-                        model: CaixaCategoria,
-                        as: "categoria",
-                        attributes: ["descricao", "id"],
+                        model: CaixaFormaLanc,
+                        as: "pagamento",
+                        attributes: ['forma_id', 'id'],
+                        include: [{model: CaixaFormaTipo, as: "tipo", attributes: ['descricao']}]
                     },
                 ],
             })
-
-            let pagamentoEncontrado = await CaixaFormaLanc.findAll({where: {lancamento_id: dados.id}})
-
-            lancamentoCriado.pagamento = pagamentoEncontrado
-
             return res.status(200).json({falha: false, dados: lancamentoCriado})
         } catch (error) {
             console.log(error)
@@ -397,6 +392,8 @@ class CaixaController {
             })
             return res.status(200).json({falha: false, dados: lancamento})
         } catch (error) {
+            console.log(error)
+
             return res.status(500).json({falha: true, erro: error})
         }
     }
