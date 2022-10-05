@@ -28,6 +28,16 @@ module.exports = {
                     created_at: new Date(),
                     updated_at: new Date()
                 },
+                {
+                    descricao: 'Cortesia',
+                    created_at: new Date(),
+                    updated_at: new Date()
+                },
+                {
+                    descricao: 'Faturado',
+                    created_at: new Date(),
+                    updated_at: new Date()
+                },
             ]
         )
     },

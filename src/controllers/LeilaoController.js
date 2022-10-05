@@ -5,7 +5,7 @@ let {
   Veiculo,
   Laudo,
   TipoVeiculo,
-  StatusLaudo, TipoServico,
+  StatusLaudo, TipoServico, Questao, Gravidade, ImagemLaudo,
 } = require("../models")
 
 class LeilaoController {
@@ -168,14 +168,48 @@ class LeilaoController {
 
       let { id: cliente_id } = req.body.cliente
 
-      let { id: laudo_id } = await Laudo.create({
+      let laudoCriado = await Laudo.create({
         cliente_id,
         veiculo_id,
         tipo_servico_id: 3,
         status_laudo_id: 1,
       })
 
-      return res.status(200).json({ laudo_id, veiculo_id })
+      let laudo = await Laudo.findOne({
+        where: { id: laudoCriado.id },
+        include: [
+          { model: Cliente },
+          { model: Questao, include: { model: Gravidade, attributes: ["cor", "icone"] } },
+          { model: Usuario, as: "perito" },
+          {
+            model: Usuario,
+            as: "perito_auxiliar",
+          },
+          {
+            model: Usuario,
+            as: "digitador",
+            attributes: ["nome", "id"],
+          },
+          {
+            model: ImagemLaudo,
+            attributes: ["peca_veiculo", "url", "id"],
+          },
+          {
+            model: Veiculo,
+            include: { model: TipoVeiculo, attributes: ["descricao"] },
+          },
+          {
+            model: StatusLaudo,
+            attributes: ["id", "descricao"],
+          },
+          {
+            model: TipoServico,
+            attributes: ["descricao"],
+          },
+        ],
+      })
+
+      return res.status(200).json({ laudo:laudo, veiculo_id })
     } catch (e) {
       console.log(e)
       return res.status(500).json({ mensagem: "Erro ao cadastrar laudo" })

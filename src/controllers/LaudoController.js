@@ -112,7 +112,7 @@ class LaudoController {
     let { id: cliente_id } = req.body.cliente
 
     try {
-      let { id: laudo_id } = await Laudo.create({
+      let laudoCriado = await Laudo.create({
         cliente_id,
         prop_nome,
         prop_cpf_cnpj,
@@ -124,7 +124,41 @@ class LaudoController {
         tipo_servico_id,
       })
 
-      return res.status(200).json({ laudo_id, veiculo_id })
+      let laudo = await Laudo.findOne({
+        where: { id: laudoCriado.id },
+        include: [
+          { model: Cliente },
+          { model: Questao, include: { model: Gravidade, attributes: ["cor", "icone"] } },
+          { model: Usuario, as: "perito" },
+          {
+            model: Usuario,
+            as: "perito_auxiliar",
+          },
+          {
+            model: Usuario,
+            as: "digitador",
+            attributes: ["nome", "id"],
+          },
+          {
+            model: ImagemLaudo,
+            attributes: ["peca_veiculo", "url", "id"],
+          },
+          {
+            model: Veiculo,
+            include: { model: TipoVeiculo, attributes: ["descricao"] },
+          },
+          {
+            model: StatusLaudo,
+            attributes: ["id", "descricao"],
+          },
+          {
+            model: TipoServico,
+            attributes: ["descricao"],
+          },
+        ],
+      })
+
+      return res.status(200).json({ veiculo_id, laudo })
     } catch (e) {
       console.log(e)
       return res.status(400).json({ mensagem: "Erro ao cadastrar laudo" })

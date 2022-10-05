@@ -54,7 +54,9 @@ class UsuarioController {
       tipo_usuario_id,
       perito,
       perito_auxiliar,
+        senha
     } = req.body
+
     const { id } = req.params
 
     const usuario = await Usuario.findOne({ where: { id } })
@@ -70,6 +72,7 @@ class UsuarioController {
       tipo_usuario_id,
       perito,
       perito_auxiliar,
+      senha
     })
 
     return res.status(200).json({ usuario })
