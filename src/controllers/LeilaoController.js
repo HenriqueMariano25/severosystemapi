@@ -220,8 +220,6 @@ class LeilaoController {
     let { cliente, veiculo, resumo } = req.body
     let { id: laudo_id } = req.params
 
-    console.log("entrei aqui")
-
     try {
       let {
         placa,
