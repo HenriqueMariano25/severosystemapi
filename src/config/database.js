@@ -10,8 +10,10 @@ module.exports = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   dialect: process.env.DB_DIALECT || "postgres",
+  timezone: '-03:00',
   dialectOptions: {
-    ssl: ssl
+    ssl: ssl,
+    useUTC: false,
   },
   operatorsAliase: false,
   logging: false,

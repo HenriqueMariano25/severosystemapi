@@ -55,6 +55,114 @@ class CaixaController {
         }
     }
 
+    async listarCaixaDiaPorDia(req, res) {
+        try {
+
+            let parametros = JSON.parse(req.query.filtro) || {}
+            let filtro
+            let { data_inicial, data_final, busca } = parametros
+
+            if(parametros.busca != null && parametros.busca != "") {
+                filtro = { [Op.or]: [
+                        { "$Usuario.nome$": {[Op.iLike]: `%${busca}%`} },
+                        { "status_caixa": {[Op.iLike]: `%${busca}%`} },
+                    ]
+                }
+            }
+
+            const dados = await CaixaDia.findAll({
+                include: [
+                    {
+                        model: CaixaLancamento,
+                        as: "lancamentos",
+                        attributes: {exclude: ["createdAt", "updatedAt"]},
+                        include: [
+                            {model: CaixaCategoria, as: "categoria", attributes: ["descricao", "id"]},
+                            {
+                                model: CaixaFormaLanc,
+                                as: "pagamento",
+                                attributes: ['forma_id', 'id'],
+                                include: [{model: CaixaFormaTipo, as: "tipo", attributes: ['descricao']}]
+                            },
+                        ],
+                    },
+                    {model: Usuario, attributes: ["nome"]},
+                ],
+                where: {
+                    data_abertura: {
+                        [Op.between]: [data_inicial,data_final]
+                    },
+                    ...filtro
+                },
+                order: ["id"],
+            })
+
+            return res.status(200).json({falha: false, dados: dados})
+        } catch (error) {
+            console.log(error)
+
+            return res.status(500).json({falha: true, erro: error})
+        }
+    }
+
+    async listarCaixaDiaExtrato(req, res) {
+        try {
+
+            let parametros = JSON.parse(req.query.filtro) || {}
+            let filtro
+
+            let { data_inicial, data_final, busca } = parametros
+
+            const dataInicalFormatada = new Date(`${data_inicial} 00:00:00Z`);
+            const dataFinalFormatada = new Date(`${data_final} 23:59:59Z`);
+
+            if(parametros.opcaoRelatorio === "faturado") filtro = { '$pagamento.tipo.descricao$': "Faturado" }
+
+            if(parametros.opcaoRelatorio === "quitados") filtro = { '$pagamento.tipo.descricao$': {[Op.not]: "Faturado"} }
+
+            if(parametros.busca != null && parametros.busca != "") {
+                filtro = { ...filtro, [Op.or]: [
+                        { "$caixa.Usuario.nome$": {[Op.iLike]: `%${busca}%`} },
+                        { "$categoria.descricao$": {[Op.iLike]:`%${busca}%`} },
+                        { "descricao": {[Op.iLike]:`%${busca}%`} },
+                    ]
+                }
+            }
+
+            const dados = await CaixaLancamento.findAll({
+                include: [
+                    {
+                        model: CaixaDia,
+                        as: "caixa",
+                        include: [
+                            {model: Usuario, attributes: ["nome"]},
+                        ],
+                    },
+                    {model: CaixaCategoria, as: "categoria", attributes: ["descricao"]},
+                    {
+                        model: CaixaFormaLanc,
+                        as: "pagamento",
+                        attributes: {exclude: ["lancamento_id", "deletedAt"]},
+                        include: [
+                            {model: CaixaFormaTipo, as: "tipo", attributes: ["descricao", "id"]},
+                        ],
+                    },
+                ],
+                where:{
+                    ...filtro,
+                    created_at: {
+                        [Op.between]: [dataInicalFormatada,dataFinalFormatada]
+                    },
+                }
+            })
+            return res.status(200).json({falha: false, dados: dados})
+        } catch (error) {
+            console.log(error)
+
+            return res.status(500).json({falha: true, erro: error})
+        }
+    }
+
     async listarCaixaDiaRelatorio(req, res) {
         try {
             let filtro = JSON.parse(req.query.filtro) || {}
