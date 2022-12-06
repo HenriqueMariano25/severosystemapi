@@ -522,19 +522,25 @@ class LaudoController {
   async buscarEspecificoCliente(req, res) {
     let { cliente_id, busca } = req.query
 
+    busca = JSON.parse(busca)
+
     try {
       const laudos = await Laudo.findAndCountAll({
         where: {
           cliente_id: cliente_id,
           [Op.or]: [
-            { '$Veiculo.placa$': { [Op.like]: '%' + busca + '%' } },
-            { '$Veiculo.marca_modelo$': { [Op.like]: '%' + busca + '%' } },
-            { '$Veiculo.chassi_bin$': { [Op.like]: '%' + busca + '%' } },
-            { '$Veiculo.chassi_atual$': { [Op.like]: '%' + busca + '%' } },
-            { '$Cliente.nome_razao_social$': { [Op.like]: '%' + busca + '%' } },
-            { '$perito.nome$': { [Op.like]: '%' + busca + '%' } },
-            { '$perito_auxiliar.nome$': { [Op.like]: '%' + busca + '%' } },
-            { '$digitador.nome$': { [Op.like]: '%' + busca + '%' } },
+            { '$Veiculo.placa$': { [Op.like]: '%' + busca.texto + '%' } },
+            { '$Veiculo.marca_modelo$': { [Op.like]: '%' + busca.texto + '%' } },
+            { '$Veiculo.chassi_bin$': { [Op.like]: '%' + busca.texto + '%' } },
+            { '$Veiculo.chassi_atual$': { [Op.like]: '%' + busca.texto + '%' } },
+            { '$Cliente.nome_razao_social$': { [Op.like]: '%' + busca.texto + '%' } },
+            { '$perito.nome$': { [Op.like]: '%' + busca.texto + '%' } },
+            { '$perito_auxiliar.nome$': { [Op.like]: '%' + busca.texto + '%' } },
+            { '$digitador.nome$': { [Op.like]: '%' + busca.texto + '%' } },
+          ],
+          [Op.and]:[
+            busca.data_final != null &&  busca.data_final != '' ? {  'createdAt': { [Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD") }  } : "",
+            busca.data_inicial != null &&  busca.data_inicial != '' ? {  'createdAt': { [Op.gte]: busca.data_inicial }  } : "",
           ]
         },
         include: [
@@ -567,7 +573,7 @@ class LaudoController {
             attributes: ["nome"],
           },
         ],
-        order: [["id"]],
+        order: [["id", "DESC"]],
       })
 
       return res.status(200).json({ laudos: laudos })
@@ -677,22 +683,30 @@ class LaudoController {
   }
 
   async buscarEspecifico(req, res) {
-    let { busca } = req.query
+    let busca  = req.query
 
     try {
       const laudos = await Laudo.findAndCountAll({
         where: {
           tipo_servico_id: { [Op.not]: [3] },
-          [Op.or]: [
-            { '$Veiculo.placa$': { [Op.like]: '%' + busca + '%' } },
-            { '$Veiculo.marca_modelo$': { [Op.like]: '%' + busca + '%' } },
-            { '$Veiculo.chassi_bin$': { [Op.like]: '%' + busca + '%' } },
-            { '$Veiculo.chassi_atual$': { [Op.like]: '%' + busca + '%' } },
-            { '$Cliente.nome_razao_social$': { [Op.like]: '%' + busca + '%' } },
-            { '$perito.nome$': { [Op.like]: '%' + busca + '%' } },
-            { '$perito_auxiliar.nome$': { [Op.like]: '%' + busca + '%' } },
-            { '$digitador.nome$': { [Op.like]: '%' + busca + '%' } },
-          ]
+          [Op.and]:[{
+            [Op.or]: [
+              { '$Veiculo.placa$': { [Op.like]: '%' + busca.texto + '%' } },
+              { '$Veiculo.marca_modelo$': { [Op.like]: '%' + busca.texto + '%' } },
+              { '$Veiculo.chassi_bin$': { [Op.like]: '%' + busca.texto + '%' } },
+              { '$Veiculo.chassi_atual$': { [Op.like]: '%' + busca.texto + '%' } },
+              { '$Cliente.nome_razao_social$': { [Op.like]: '%' + busca.texto + '%' } },
+              { '$perito.nome$': { [Op.like]: '%' + busca.texto + '%' } },
+              { '$perito_auxiliar.nome$': { [Op.like]: '%' + busca.texto + '%' } },
+              { '$digitador.nome$': { [Op.like]: '%' + busca.texto + '%' } },
+            ],
+            [Op.and]:[
+              busca.data_inicial != null &&  busca.data_inicial != '' ? {  'createdAt': { [Op.gte]: busca.data_inicial }  } : "",
+              busca.data_final != null &&  busca.data_final != '' ? {  'createdAt': { [Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD") }  } : "",
+            ]
+          }]
+
+
         },
         include: [
           {
