@@ -5,6 +5,7 @@ const {
     CaixaFormaTipo,
     CaixaFormaLanc,
     Usuario,
+    CaixaQuitacao
 } = require("../models")
 const {Op, sequelize, Sequelize} = require("sequelize")
 const dayjs = require("dayjs")
@@ -147,6 +148,7 @@ class CaixaController {
                             {model: CaixaFormaTipo, as: "tipo", attributes: ["descricao", "id"]},
                         ],
                     },
+                    { model: CaixaQuitacao, attributes: ['data'], as: "CaixaQuitacao"},
                 ],
                 where:{
                     ...filtro,
@@ -599,6 +601,34 @@ class CaixaController {
             return res.status(200).json({falha: false, dados: dados})
         } catch (error) {
             return res.status(500).json({falha: true, erro: error})
+        }
+    }
+
+    async quitarFaturado(req, res){
+        let { usuario_id, lancamento_id } = req.body
+        try{
+            let data = dayjs().format("YYYY-MM-DD")
+
+            let quitacao = await CaixaQuitacao.create({ data, usuario_id, lancamento_id })
+
+            return res.status(200).json({ falha: false, dados: {quitacao: quitacao}})
+        }catch (error) {
+            console.log(error)
+
+            return res.status(500).json({ falha: true, erro: error})
+        }
+    }
+
+    async desquitarFaturado(req, res){
+        let { lancamento_id } = req.body
+        try{
+            await CaixaQuitacao.destroy({ where: { lancamento_id } })
+
+            return res.status(200).json({ falha: false, dados: {deletado: true}})
+        }catch (error) {
+            console.log(error)
+
+            return res.status(500).json({ falha: true, erro: error})
         }
     }
 }

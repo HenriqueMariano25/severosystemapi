@@ -38,4 +38,8 @@ routes.put('/caixa/:id', CaixaController.alterarCaixaDia)
 routes.delete('/caixa/:id', CaixaController.deletarCaixaDia)
 routes.get('/caixa/verificar_caixa_aberto/:usuario_id', CaixaController.verificarCaixaAberto)
 
+//------- Caixa Quitação -------//
+routes.post("/caixa/quitacao", CaixaController.quitarFaturado)
+routes.post("/caixa/desquitacao", CaixaController.desquitarFaturado)
+
 module.exports = routes

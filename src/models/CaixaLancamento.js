@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
         CaixaLancamento.hasMany(models.CaixaFormaLanc, {
             foreignKey:'lancamento_id',as:'pagamento'
         })
+
+        CaixaLancamento.hasMany(models.CaixaQuitacao, {
+            foreignKey: 'lancamento_id',
+            as: "CaixaQuitacao"
+        })
     }
     return CaixaLancamento
 }
