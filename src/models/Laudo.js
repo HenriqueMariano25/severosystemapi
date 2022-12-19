@@ -48,6 +48,9 @@ module.exports = (sequelize, DataTypes) => {
     Laudo.belongsTo(models.TipoServico, {
       foreignKey: "tipo_servico_id",
     })
+    Laudo.hasMany(models.RascunhoLaudo, {
+      foreignKey: "laudo_id",
+    })
   }
 
   return Laudo

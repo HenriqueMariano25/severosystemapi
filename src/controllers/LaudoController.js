@@ -10,7 +10,8 @@ const {
   Usuario,
   Gravidade,
   TipoServico,
-  CaixaLancamento
+  CaixaLancamento,
+  RascunhoLaudo
 } = require("../models")
 const dayjs = require("dayjs")
 const path = require("path")
@@ -195,29 +196,12 @@ class LaudoController {
       let url = ""
       let nome = nomeFormatado
 
-      //   const originalFile = files[key]
-
-      //     const newFile = await sharpify(originalFile)
-
-      //     let data = await uploadToAWS({
-      //       Body: newFile,
-      //       ACL: "public-read",
-      //       Bucket: process.env.BUCKET_NAME,
-      //       ContentType: originalFile.mimetype,
-      //       Key: `${nomeFormatado}`,
-      //     })
-      //     url = data["Location"]
-      //     nome = data["Key"]
-
       if (process.env.STORAGE_TYPE === "production") {
         await sharp(files[key].buffer).toFile(path.resolve("../images", nomeFormatado))
       } else if (process.env.STORAGE_TYPE === "local") {
         await sharp(files[key].buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
       }
 
-      // if (!url) {
-      //   url = `${req.protocol}://${req.get("host")}/files/${nome}`
-      // }
       url = `${req.protocol}://104.197.15.193/api/files/${nome}`
       try {
         let img = await ImagemLaudo.create({
@@ -234,6 +218,84 @@ class LaudoController {
     }
 
     return res.json({ imgs: imgsRetornadas })
+  }
+
+  async salvarRascunhos(req, res){
+    let dados = JSON.parse(req.body.data)
+
+    let { laudo_id } = dados
+
+    const files = req.files
+
+    let rascunhosRetornadas = []
+
+    for (let key in files) {
+      let nomeFormatado = `${dayjs().format("DDMMYYYYHHmmssSSS")}-${files[key].originalname}`
+      let url = ""
+      let nome = nomeFormatado
+
+      if (process.env.STORAGE_TYPE === "production") {
+        if(files[key].mimetype != "application/pdf")
+          await sharp(files[key].buffer).toFile(path.resolve("../images", nomeFormatado))
+        else
+          fs.writeFileSync(`images/${nomeFormatado}`, files[key].buffer,'binary');
+
+        url = `${req.protocol}://104.197.15.193/api/files/${nome}`
+      } else if (process.env.STORAGE_TYPE === "local") {
+        if(files[key].mimetype != "application/pdf")
+          await sharp(files[key].buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
+        else{
+          fs.writeFileSync(`tmp/uploads/${nomeFormatado}`, files[key].buffer,'binary');
+        }
+
+        url = `${req.protocol}://localhost:3000/files/${nome}`
+      }
+
+      try {
+        let rascunho = await RascunhoLaudo.create({
+          url,
+          nome: nome,
+          laudo_id,
+        })
+        rascunhosRetornadas.push( rascunho )
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    return res.status(200).json({ rascunhos: rascunhosRetornadas })
+  }
+
+  async deletarRascunho(req, res){
+    let { id } = req.params
+
+    try{
+      let rascunho = await RascunhoLaudo.findOne({ where: { id }})
+
+      await RascunhoLaudo.destroy({ where: { id }})
+
+      if (process.env.STORAGE_TYPE === "production") {
+        fs.unlink(
+            path.resolve(__dirname, "..", "..", "..", "images", rascunho.nome),
+            function (err) {
+              if (err) throw err
+            }
+        )
+      } else {
+        fs.unlink(
+            path.resolve(__dirname, "..", "..", "tmp", "uploads", rascunho.nome),
+            function (err) {
+              if (err) throw err
+            }
+        )
+      }
+
+      return res.status(200).json({ falha: false, deletado: true})
+    }catch (error) {
+      console.log(error)
+
+      return res.status(500).json({ falha: true, erro: error})
+    }
   }
 
   async deletarFoto(req, res) {
@@ -604,6 +666,9 @@ class LaudoController {
         {
           model: ImagemLaudo,
           attributes: ["peca_veiculo", "url", "id"],
+        },
+        { model: RascunhoLaudo,
+          attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt']}
         },
         {
           model: Veiculo,
