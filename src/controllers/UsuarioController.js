@@ -1,4 +1,4 @@
-const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario } = require("../models")
+const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario, Cliente } = require("../models")
 const { Op } = require("sequelize")
 const Sequelize = require("sequelize")
 
@@ -54,7 +54,8 @@ class UsuarioController {
       tipo_usuario_id,
       perito,
       perito_auxiliar,
-        senha
+        senha,
+      cliente,
     } = req.body
 
     const { id } = req.params
@@ -75,6 +76,18 @@ class UsuarioController {
       senha
     })
 
+    const [ clienteEncontrado, created ] = await ClienteUsuario.findOrCreate({
+      where: { usuario_id: usuario.id },
+      defaults:{
+        cliente_id: cliente.id, usuario_id: usuario.id
+      }
+    })
+
+    if(!created){
+      await ClienteUsuario.update({ cliente_id: cliente.id}, { where: { id: clienteEncontrado.id }})
+    }
+
+
     return res.status(200).json({ usuario })
   }
 
@@ -93,7 +106,12 @@ class UsuarioController {
   async buscar(req, res) {
     const { id } = req.params
 
-    const usuario = await Usuario.findOne({ where: { id } })
+    const usuario = await Usuario.findOne({ where: { id },
+      attributes: { exclude: ['createdAt', 'updatedAd', 'deletedAt']},
+      include: [
+        { model: Cliente, attributes: ['id', 'nome_razao_social'] }
+      ]
+    })
 
     if (!usuario) return res.status(400).json({ message: "Usuário não encontrado" })
 
@@ -101,7 +119,12 @@ class UsuarioController {
   }
 
   async buscarTodos(req, res) {
-    let usuarios = await Usuario.findAll()
+    let usuarios = await Usuario.findAll({
+      attributes:['id', 'nome','cargo', 'usuario'],
+      include: [
+        { model: TipoUsuario, attributes: ['id', 'descricao']}
+      ]
+    })
 
     return res.status(200).json({ usuarios: usuarios })
   }
