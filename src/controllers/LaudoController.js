@@ -689,7 +689,20 @@ class LaudoController {
 
       let laudo = await Laudo.findOne({ where: { id: id } })
 
-      laudo.destroy()
+      if(laudo){
+
+        let idFormatado = ("000000000" + id).slice(-9)
+
+        let lancamentos = await CaixaLancamento.findAll({ where: { descricao: {[Op.iLike]: `%${idFormatado} T%`}  }, attributes:['id']})
+
+         if(lancamentos.length > 0){
+           for(let lanc of lancamentos){
+             await CaixaLancamento.destroy({ where: { id: lanc.id}})
+           }
+         }
+
+        laudo.destroy()
+      }
 
       return res.status(200).json({ laudo: "laudo" })
     } catch (e) {
