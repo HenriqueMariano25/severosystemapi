@@ -448,6 +448,8 @@ class LaudoController {
         digitador: digitador_id,
       } = resumo
 
+      console.log(situacao)
+
       let { id: cliente_id } = cliente
 
       let laudo
