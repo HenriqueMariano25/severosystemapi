@@ -311,7 +311,7 @@ class LaudoController {
               console.log(path.resolve(__dirname, "..", "..", "images", img.nome))
 
               fs.unlink(
-                  path.resolve(__dirname, "..", "..", "..", "images", img.nome),
+                  path.resolve(__dirname, "..", "..", "images", img.nome),
                   function (err) {
                     if (err) throw err
                   }
