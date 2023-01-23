@@ -167,57 +167,56 @@ class LaudoController {
   }
 
   async salvarFotos(req, res) {
-    let dados = JSON.parse(req.body.data)
+    try {
+      let dados = JSON.parse(req.body.data)
 
-    let { laudo_id } = dados
-    let imgs = dados.imgs
-    let resumo = dados.resumo
+      let { laudo_id } = dados
+      let img = dados.img
+      let resumo = dados.resumo
 
-    if (resumo.perito_auxiliar) {
-      let perito_auxiliar_id = resumo.perito_auxiliar
-      await Laudo.update(
-        { perito_auxiliar_id },
-        {
-          where: {
-            id: laudo_id,
-          },
-        }
-      )
-    }
-
-    const files = req.files
-
-    let imgsRetornadas = []
-
-    for (let key in files) {
-      let peca_veiculo = dados.imgs[key].nome
-      let nomeFormatado = `${dayjs().format("DDMMYYYYHHmmssSSS")}-${files[key].originalname
-        }`
-      let url = ""
-      let nome = nomeFormatado
-
-      if (process.env.STORAGE_TYPE === "production") {
-        await sharp(files[key].buffer).toFile(path.resolve("../images", nomeFormatado))
-      } else if (process.env.STORAGE_TYPE === "local") {
-        await sharp(files[key].buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
+      if (resumo.perito_auxiliar) {
+        let perito_auxiliar_id = resumo.perito_auxiliar
+        await Laudo.update(
+          { perito_auxiliar_id },
+          {
+            where: {
+              id: laudo_id,
+            },
+          }
+        )
       }
 
-      url = `${req.protocol}://104.197.15.193/api/files/${nome}`
-      try {
-        let img = await ImagemLaudo.create({
+        const file = req.files[0]
+
+        let peca_veiculo = img.nome
+        let nomeFormatado = `laudo${laudo_id}-${dayjs().format("DDMMYYYYHHmmssSSS")}-${file.originalname}`
+
+        let url = ""
+
+        if (process.env.STORAGE_TYPE === "production") {
+          await sharp(file.buffer).toFile(path.resolve("../images", nomeFormatado))
+        } else if (process.env.STORAGE_TYPE === "local") {
+          await sharp(file.buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
+        }
+
+        if (process.env.STORAGE_TYPE === "production") {
+          url = `${req.protocol}://104.197.15.193/api/files/${nomeFormatado}`
+        }else{
+          url = `${req.protocol}://${req.get("host")}/files/${nomeFormatado}`
+        }
+
+        let imgCriada = await ImagemLaudo.create({
           url,
-          nome: nome,
+          nome: nomeFormatado,
           laudo_id,
           peca_veiculo,
           peca_veiculo_id: 1,
         })
-        imgsRetornadas.push({ img, index: imgs[key].index })
-      } catch (e) {
-        console.log(e)
-      }
+      return res.status(200).json({ falha: false,  dados: { img: imgCriada } })
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ falha: true, erro: error})
     }
-
-    return res.json({ imgs: imgsRetornadas })
   }
 
   async salvarRascunhos(req, res){
@@ -300,41 +299,74 @@ class LaudoController {
 
   async deletarFoto(req, res) {
     let { id } = req.params
-    if (id) {
-      let img = await ImagemLaudo.findOne({ where: { id } })
 
-      // const s3 = new aws.S3({
-      //     accessKeyId: AWS_ACCESS_KEY_ID,
-      //     secretAccessKey: AWS_SECRET_ACCESS_KEY,
-      //     region: AWS_DEFAULT_REGION
-      // })
-      // s3.deleteObject({
-      //     Bucket: process.env.BUCKET_NAME,
-      //     Key: img.nome
-      // })
+    console.log(id)
+    try{
+        if(id){
 
-      if (process.env.STORAGE_TYPE === "production") {
-        fs.unlink(
-          path.resolve(__dirname, "..", "..", "..", "images", img.nome),
-          function (err) {
-            if (err) throw err
+          let img = await ImagemLaudo.findOne({where: {id}})
+          if (img) {
+
+            if (process.env.STORAGE_TYPE === "production") {
+              console.log(path.resolve(__dirname, "..", "..", "..", "images", img.nome))
+
+              fs.unlink(
+                  path.resolve(__dirname, "..", "..", "..", "images", img.nome),
+                  function (err) {
+                    if (err) throw err
+                  }
+              )
+            } else {
+              console.log(path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome))
+
+              fs.unlink(
+                  path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
+                  function (err) {
+                    if (err) throw err
+                  }
+              )
+            }
           }
-        )
-      } else {
-        fs.unlink(
-          path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
-          function (err) {
-            if (err) throw err
-          }
-        )
-      }
 
-      await ImagemLaudo.destroy({ where: { id } })
-
-      return res.status(200).json({ img: img })
-    } else {
-      return res.status(400).json({ mensagem: "Erro ao remover imagem" })
+          await ImagemLaudo.destroy({where: {id}})
+        }
+      return res.status(200).json({falha: false, dados: { id: id }})
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({ falha: true, erro: error})
     }
+
+    // if (id) {
+    //   // let img = await ImagemLaudo.findOne({ where: { id } })
+    //   // if(img){
+    //   //
+    //   //   if (process.env.STORAGE_TYPE === "production") {
+    //   //     console.log(path.resolve(__dirname, "..", "..", "..", "images", img.nome))
+    //   //
+    //   //     fs.unlink(
+    //   //       path.resolve(__dirname, "..", "..", "..", "images", img.nome),
+    //   //       function (err) {
+    //   //         if (err) throw err
+    //   //       }
+    //   //     )
+    //   //   } else {
+    //   //     console.log(path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome))
+    //   //
+    //   //     fs.unlink(
+    //   //       path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
+    //   //       function (err) {
+    //   //         if (err) throw err
+    //   //       }
+    //   //     )
+    //   //   }
+    //   // }
+    //   //
+    //   // await ImagemLaudo.destroy({ where: { id } })
+    //
+    //   return res.status(200).json({ falha: false, dados: { img: img }})
+    // } else {
+    //   return res.status(400).json({ falha: true, erro: error })
+    // }
   }
 
   async editarPecaImagem(req, res) {

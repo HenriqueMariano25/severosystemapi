@@ -9,7 +9,7 @@ routes.put("/laudo/:id/finalizar", LaudoController.finalizar)
 
 routes.put(
   "/laudo/:id/salvar_fotos",
-  multer(multerConfig).array("files", 30),
+  multer(multerConfig).array("files", 1),
   LaudoController.salvarFotos
 )
 
