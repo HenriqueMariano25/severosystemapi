@@ -308,7 +308,7 @@ class LaudoController {
           if (img) {
 
             if (process.env.STORAGE_TYPE === "production") {
-              console.log(path.resolve(__dirname, "..", "..", "..", "images", img.nome))
+              console.log(path.resolve(__dirname, "..", "..", "images", img.nome))
 
               fs.unlink(
                   path.resolve(__dirname, "..", "..", "..", "images", img.nome),
