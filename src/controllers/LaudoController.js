@@ -304,29 +304,29 @@ class LaudoController {
     try{
         if(id){
 
-          let img = await ImagemLaudo.findOne({where: {id}})
-          if (img) {
+          // let img = await ImagemLaudo.findOne({where: {id}})
+          // if (img) {
 
-            if (process.env.STORAGE_TYPE === "production") {
-              console.log(path.resolve(__dirname, "..", "..", "images", img.nome))
+            // if (process.env.STORAGE_TYPE === "production") {
+            //   console.log(path.resolve(__dirname, "..", "..", "images", img.nome))
 
-              fs.unlink(
-                  path.resolve(__dirname, "..", "..", "images", img.nome),
-                  function (err) {
-                    if (err) throw err
-                  }
-              )
-            } else {
-              console.log(path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome))
+            //   fs.unlink(
+            //       path.resolve(__dirname, "..", "..", "images", img.nome),
+            //       function (err) {
+            //         if (err) throw err
+            //       }
+            //   )
+            // } else {
+            //   console.log(path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome))
 
-              fs.unlink(
-                  path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
-                  function (err) {
-                    if (err) throw err
-                  }
-              )
-            }
-          }
+            //   fs.unlink(
+            //       path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
+            //       function (err) {
+            //         if (err) throw err
+            //       }
+            //   )
+            // }
+          // }
 
           await ImagemLaudo.destroy({where: {id}})
         }
