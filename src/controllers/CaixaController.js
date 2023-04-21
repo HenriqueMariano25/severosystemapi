@@ -5,7 +5,8 @@ const {
     CaixaFormaTipo,
     CaixaFormaLanc,
     Usuario,
-    CaixaQuitacao
+    CaixaQuitacao,
+    Veiculo
 } = require("../models")
 const {Op, sequelize, Sequelize} = require("sequelize")
 const dayjs = require("dayjs")
@@ -158,6 +159,90 @@ class CaixaController {
                 }
             })
             return res.status(200).json({falha: false, dados: dados})
+        } catch (error) {
+            console.log(error)
+
+            return res.status(500).json({falha: true, erro: error})
+        }
+    }
+
+    async listarCaixaDiaExtratoResumido(req, res){
+        try {
+
+            let parametros = JSON.parse(req.query.filtro) || {}
+            let filtro
+
+            let {data_inicial, data_final, busca} = parametros
+
+            const dataInicalFormatada = new Date(`${data_inicial} 00:00:00Z`);
+            const dataFinalFormatada = new Date(`${data_final} 23:59:59Z`);
+
+            if (parametros.opcaoRelatorio === "faturado") filtro = {'$pagamento.tipo.descricao$': "Faturado"}
+
+            if (parametros.opcaoRelatorio === "quitados") filtro = {'$pagamento.tipo.descricao$': {[Op.not]: "Faturado"}}
+
+            if (parametros.busca != null && parametros.busca != "") {
+                filtro = {
+                    ...filtro, [Op.or]: [
+                        {"$caixa.Usuario.nome$": {[Op.iLike]: `%${busca}%`}},
+                        {"$categoria.descricao$": {[Op.iLike]: `%${busca}%`}},
+                        {"descricao": {[Op.iLike]: `%${busca}%`}},
+                    ]
+                }
+            }
+
+            const dados = await CaixaLancamento.findAll({
+                include: [
+                    {
+                        model: CaixaDia,
+                        as: "caixa",
+                        include: [
+                            {model: Usuario, attributes: ["nome"]},
+                        ],
+                    },
+                    {model: CaixaCategoria, as: "categoria", attributes: ["descricao"]},
+                    {
+                        model: CaixaFormaLanc,
+                        as: "pagamento",
+                        attributes: {exclude: ["lancamento_id", "deletedAt"]},
+                        include: [
+                            {model: CaixaFormaTipo, as: "tipo", attributes: ["descricao", "id"]},
+                        ],
+                    },
+                    {model: CaixaQuitacao, attributes: ['data'], as: "CaixaQuitacao"},
+                ],
+                where: {
+                    ...filtro,
+                    created_at: {
+                        [Op.between]: [dataInicalFormatada, dataFinalFormatada]
+                    },
+                }
+            })
+
+            const regex = /PLACA: (.*?) CLIENTE:/i;
+            const regexTipoLaudo = /Tipo Laudo: (.*?) Placa:/i;
+
+            let novosDados = [ ...dados ]
+
+            for(let dado of novosDados){
+                let placa = dado.descricao.match(regex)
+                let tipoLaudo = dado.descricao.match(regexTipoLaudo)
+
+                if(placa !== null ){
+                    let veiculo = await Veiculo.findOne({ where: { placa: placa[1] }, attributes: ["id", "marca_modelo" ]})
+
+                    if(veiculo) {
+                        dado.dataValues['modelo'] = veiculo.marca_modelo
+                        dado.dataValues['placa'] = placa[1]
+                    }
+                }
+
+                if(tipoLaudo !== null){
+                    dado.dataValues['tipoLaudo'] = tipoLaudo[1]
+                }
+            }
+
+            return res.status(200).json({falha: false, dados: novosDados})
         } catch (error) {
             console.log(error)
 
