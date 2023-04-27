@@ -3,6 +3,8 @@ const LaudoController = require("../controllers/LaudoController")
 const multer = require("multer")
 const multerConfig = require("../config/multer")
 
+routes.post("/laudo/cadastrar", LaudoController.cadastrarLaudo)
+
 routes.post("/laudo", LaudoController.cadastrar)
 
 routes.put("/laudo/:id/finalizar", LaudoController.finalizar)
@@ -30,6 +32,8 @@ routes.put("/laudo/:id/salvar_questoes", LaudoController.salvarQuestoes)
 routes.put("/laudo/:id", LaudoController.editar)
 
 routes.get("/laudos", LaudoController.buscarTodos)
+
+routes.get("/laudos/buscar", LaudoController.buscarTodosPaginados)
 
 routes.get("/laudos/cliente", LaudoController.buscarTodosCliente)
 

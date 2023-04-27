@@ -54,6 +54,84 @@ const uploadToAWS = (props) => {
 }
 
 class LaudoController {
+
+  async cadastrarLaudo(req, res){
+    let {tipo_servico_id} = req.body
+
+    let {
+      placa,
+      ano,
+      hodometro,
+      uf,
+      cidade,
+      marca_modelo,
+      chassi_bin,
+      chassi_atual,
+      motor_bin,
+      motor_atual,
+      cor_bin,
+      cor_atual,
+      combustivel,
+      renavam,
+      cambio_bin,
+      cambio_atual,
+      crlv,
+      tipo_lacre,
+      lacre,
+    } = req.body.veiculo
+
+    let {
+      nome_razao_social: prop_nome,
+      cpf_cnpj: prop_cpf_cnpj,
+      cnh: prop_cnh,
+      telefone: prop_telefone,
+      email: prop_email,
+    } = req.body.proprietario
+
+    let {id: cliente_id} = req.body.cliente
+
+    try{
+      let {id: veiculo_id} = await Veiculo.create({
+        placa,
+        ano,
+        hodometro,
+        uf,
+        cidade,
+        marca_modelo,
+        chassi_bin,
+        chassi_atual,
+        motor_bin,
+        motor_atual,
+        cor_bin,
+        cor_atual,
+        combustivel,
+        renavam,
+        cambio_bin,
+        cambio_atual,
+        crlv,
+        tipo_lacre,
+        lacre,
+        tipo_veiculo_id: req.body.veiculo.tipo_veiculo.id,
+      })
+
+      let laudoCriado = await Laudo.create({
+        cliente_id,
+        prop_nome,
+        prop_cpf_cnpj,
+        prop_cnh,
+        prop_telefone,
+        prop_email,
+        veiculo_id,
+        status_laudo_id: 1,
+        tipo_servico_id,
+      })
+
+        return res.status(200).json({ falha: false, dados: { laudo: laudoCriado } })
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({ falha: true, erro: error})
+    }
+  }
   async cadastrar(req, res) {
     let { tipo_servico_id } = req.body
 
@@ -745,24 +823,42 @@ class LaudoController {
     }
   }
 
-  async buscarTodos(req, res) {
-    const { page, size } = req.query
+  async buscarTodosPaginados(req, res){
+    let {page, size, busca} = req.query
+
+    busca = JSON.parse(busca) || {}
 
     const laudos = await Laudo.findAndCountAll({
       where: {
-        tipo_servico_id: { [Op.not]: [3] },
+        tipo_servico_id: {[Op.not]: [3]},
+
+        [Op.or]: [
+          {id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null},
+          {'$Veiculo.placa$': {[Op.like]: '%' + busca.texto + '%'}},
+          {'$Veiculo.marca_modelo$': {[Op.like]: '%' + busca.texto + '%'}},
+          {'$Veiculo.chassi_bin$': {[Op.like]: '%' + busca.texto + '%'}},
+          {'$Veiculo.chassi_atual$': {[Op.like]: '%' + busca.texto + '%'}},
+          {'$Cliente.nome_razao_social$': {[Op.like]: '%' + busca.texto + '%'}},
+          {'$perito.nome$': {[Op.like]: '%' + busca.texto + '%'}},
+          {'$perito_auxiliar.nome$': {[Op.like]: '%' + busca.texto + '%'}},
+          {'$digitador.nome$': {[Op.like]: '%' + busca.texto + '%'}},
+        ],
+        [Op.and]: [
+          busca.data_final != null && busca.data_final != '' ? {'createdAt': {[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD")}} : "",
+          busca.data_inicial != null && busca.data_inicial != '' ? {'createdAt': {[Op.gte]: busca.data_inicial}} : "",
+        ]
       },
       limit: size,
       offset: page * size,
       include: [
         {
           model: Veiculo,
-          include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
-          attributes: { exclude: ["createdAt", "updatedAt"] },
+          include: [{model: TipoVeiculo, attributes: ["descricao"]}],
+          attributes: {exclude: ["createdAt", "updatedAt"]},
         },
         {
           model: Cliente,
-          attributes: { exclude: ["createdAt", "updatedAt"] },
+          attributes: {exclude: ["createdAt", "updatedAt"]},
         },
         {
           model: StatusLaudo,
@@ -791,7 +887,56 @@ class LaudoController {
       order: [["id", "DESC"]],
     })
 
-    return res.status(200).json({ laudos: laudos })
+    return res.status(200).json({laudos: laudos})
+  }
+
+  async buscarTodos(req, res) {
+    const {page, size} = req.query
+
+    const laudos = await Laudo.findAndCountAll({
+      where: {
+        tipo_servico_id: {[Op.not]: [3]},
+      },
+      limit: size,
+      offset: page * size,
+      include: [
+        {
+          model: Veiculo,
+          include: [{model: TipoVeiculo, attributes: ["descricao"]}],
+          attributes: {exclude: ["createdAt", "updatedAt"]},
+        },
+        {
+          model: Cliente,
+          attributes: {exclude: ["createdAt", "updatedAt"]},
+        },
+        {
+          model: StatusLaudo,
+          attributes: ["id", "descricao"],
+        },
+        {
+          model: Usuario,
+          as: "perito",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "perito_auxiliar",
+          attributes: ["nome"],
+        },
+        {
+          model: Usuario,
+          as: "digitador",
+          attributes: ["nome"],
+        },
+        {
+          model: TipoServico,
+          attributes: ["descricao"],
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+
+    return res.status(200).json({laudos: laudos})
   }
 
   async buscarEspecifico(req, res) {
