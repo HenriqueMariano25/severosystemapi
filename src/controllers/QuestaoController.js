@@ -1,79 +1,97 @@
-const {Questao, Gravidade, TipoVeiculo} = require("../models");
+const { Questao, Gravidade, TipoVeiculo } = require("../models")
 
 class QuestaoController {
-    async cadastrar(req, res) {
-        let {titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente} = req.body
+	async cadastrar(req, res) {
+		let { titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente } = req.body
 
-        if (!titulo || !tipo_veiculo_id || !gravidade_id || !componente)
-            return res.status(400).json({message: "Dados obrigatorios faltando"})
+		if (!titulo || !tipo_veiculo_id || !gravidade_id || !componente)
+			return res.status(400).json({ message: "Dados obrigatorios faltando" })
 
-        let questao = await Questao.create({titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente})
+		let questao = await Questao.create({
+			titulo,
+			tipo_veiculo_id,
+			situacao_observada,
+			gravidade_id,
+			componente,
+		})
 
-        return res.status(200).json({questao: questao})
-    }
+		let questaoCriada = await Questao.findOne({
+			include: [
+				{ model: Gravidade, attributes: ["id", "descricao"] },
+				{ model: TipoVeiculo, attributes: ["id", "descricao"] },
+			],
+			where: { id: questao.id },
+		})
 
-    async editar(req, res) {
-        let {titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente} = req.body
-        let {id} = req.params
+		return res.status(200).json({ questao: questaoCriada })
+	}
 
-        let questao = await Questao.findOne({where: {id}})
+	async editar(req, res) {
+		let { titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente } = req.body
+		let { id } = req.params
 
-        await questao.update({titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente})
+		await Questao.update({ titulo, tipo_veiculo_id, situacao_observada, gravidade_id, componente }, { where: { id }})
 
-        return res.status(200).json({questao: questao})
-    }
+        let questao = await Questao.findOne({ where: { id }, attributes: { exclude: ['createdAt', 'deletedAt', 'updatedAt']}, include: [
+            { model: Gravidade, attributes: ["id", "descricao"] },
+            { model: TipoVeiculo, attributes: ["id", "descricao"] },
+        ], })
 
-    async deletar(req, res) {
-        let {id} = req.params
+		return res.status(200).json({ questao: questao })
+	}
 
-        let questao = await Questao.findOne({where: {id}})
+	async deletar(req, res) {
+		let { id } = req.params
 
-        await questao.destroy()
+		let questao = await Questao.findOne({ where: { id } })
 
-        return res.status(200).json({questao: questao})
-    }
+		await questao.destroy()
 
-    async buscarGravidades(req, res) {
-        let gravidades = await Gravidade.findAll()
+		return res.status(200).json({ questao: questao })
+	}
 
-        return res.status(200).json({gravidades: gravidades})
-    }
+	async buscarGravidades(req, res) {
+		let gravidades = await Gravidade.findAll()
 
-    async buscarTodosPorTipoVeiculo(req, res) {
-        let {tipo_veiculo_id} = req.params
+		return res.status(200).json({ gravidades: gravidades })
+	}
 
-        let questoes = await Questao.findAll({
-            where: {'tipo_veiculo_id': tipo_veiculo_id},
-            include: [
-                {model: Gravidade},
-                {model: TipoVeiculo, attributes: ['id','descricao']}
-            ],
-            order: [
-                ['titulo']]
-        })
+	async buscarTodosPorTipoVeiculo(req, res) {
+		let { tipo_veiculo_id } = req.params
 
-        return res.status(200).json({questoes: questoes})
-    }
+		let questoes = await Questao.findAll({
+			where: { tipo_veiculo_id: tipo_veiculo_id },
+			include: [{ model: Gravidade }, { model: TipoVeiculo, attributes: ["id", "descricao"] }],
+			attributes: { exclude: ["createdAt", "deletedAt", "updatedAt"] },
+			order: [["titulo"]],
+		})
 
-    async buscarTodos(req, res) {
-        let questoes = await Questao.findAll({
-            include: [{
-                model: Gravidade
-            }, {model: TipoVeiculo}],
-            order: [
-                ['titulo']]
-        })
+		return res.status(200).json({ questoes: questoes })
+	}
 
-        return res.status(200).json({questoes: questoes})
-    }
+	async buscarTodos(req, res) {
+		let questoes = await Questao.findAll({
+			include: [
+				{
+					model: Gravidade,
+					attributes: { exclude: ["createdAt", "deletedAt", "updatedAt"] },
+				},
+				{ model: TipoVeiculo },
+			],
+			attributes: { exclude: ["createdAt", "deletedAt", "updatedAt"] },
+			order: [["titulo"]],
+		})
 
-    async buscar(req, res) {
-        let {id} = req.params
+		return res.status(200).json({ questoes: questoes })
+	}
 
-        let questao = await Questao.findOne({where: {id}})
+	async buscar(req, res) {
+		let { id } = req.params
 
-        return res.status(200).json({questao: questao})
-    }
+		let questao = await Questao.findOne({ where: { id } })
+
+		return res.status(200).json({ questao: questao })
+	}
 }
 
 module.exports = new QuestaoController()
