@@ -31,6 +31,8 @@ routes.put("/laudo/:id/salvar_questoes", LaudoController.salvarQuestoes)
 
 routes.put("/laudo/:id", LaudoController.editar)
 
+routes.put("/laudo/:id/novo_padrao", LaudoController.editarNovoPadrao)
+
 routes.get("/laudos", LaudoController.buscarTodos)
 
 routes.get("/laudos/buscar", LaudoController.buscarTodosPaginados)

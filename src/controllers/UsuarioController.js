@@ -1,6 +1,7 @@
 const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario, Cliente } = require("../models")
 const { Op } = require("sequelize")
 const Sequelize = require("sequelize")
+const jwt = require("jsonwebtoken")
 
 class UsuarioController {
   async cadastrar(req, res) {
@@ -210,6 +211,54 @@ class UsuarioController {
     await usuario.update({ senha: novaSenha })
 
     return res.status(200).json({ usuario })
+  }
+
+
+  async loginNovoPadrao(req, res) {
+    const {usuario: usuarioCriado, senha} = req.body
+
+    const usuario = await Usuario.findOne({
+      where: {usuario: usuarioCriado},
+    })
+
+    if (!usuario)
+      return res
+          .status(401)
+          .json({message: "Usuário não encontrado", type: "invalid_data"})
+
+    if (!(await usuario.verificarSenha(senha))) {
+      return res.status(401).json({message: "Senha incorreta", type: "invalid_data"})
+    }
+
+    const token = usuario.gerarToken()
+
+    return res.status(200).json({
+      token: token,
+    })
+  }
+
+  async buscarLogin(req, res) {
+    const token = req.body.token || req.query.token || req.headers["authorization"].split(" ")[1]
+
+
+    if (!token) {
+      return res.status(403).send("A token is required for authentication")
+    }
+    try {
+      const decoded = jwt.verify(token, process.env.APP_SECRET)
+
+      req.user = decoded
+      let usuario = await Usuario.findOne({
+        where: {id: req.user.id},
+        attributes: {exclude: ["senha_hash", "createdAt", "updatedAt", "deletedAt"]},
+      }).then((data) => {
+        return data.get({plain: true})
+      })
+
+      return res.status(200).json(usuario)
+    } catch (err) {
+      return res.status(401).send("Invalid Token")
+    }
   }
 }
 

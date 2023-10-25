@@ -1,7 +1,11 @@
 const routes = require("express").Router()
 const UsuarioController = require("../controllers/UsuarioController")
 
-routes.get("/usuario/login/", UsuarioController.login)
+routes.get("/usuario/login/buscar", UsuarioController.buscarLogin)
+
+routes.post("/usuario/login/novo_padrao", UsuarioController.loginNovoPadrao)
+
+routes.get("/usuario/login", UsuarioController.login)
 
 routes.put("/usuario/alterar_senha", UsuarioController.alterarSenha)
 
@@ -20,6 +24,7 @@ routes.get("/usuario/peritos", UsuarioController.buscarPeritos)
 routes.get("/usuario/:id", UsuarioController.buscar)
 
 routes.get("/usuarios", UsuarioController.buscarTodos)
+
 
 
 

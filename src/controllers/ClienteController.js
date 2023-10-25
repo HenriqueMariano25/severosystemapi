@@ -1,4 +1,5 @@
 const {Cliente} = require("../models")
+const {Op} = require("sequelize");
 
 class ClienteController {
     async cadastrar(req, res) {
@@ -50,6 +51,35 @@ class ClienteController {
         let cliente = await Cliente.findOne({where: {id}})
 
         return res.status(200).json({ cliente: cliente})
+    }
+
+    async buscarNovoPadrao(req, res) {
+        let { filtro } = req.query
+
+
+        if(filtro){
+            filtro = {
+                [Op.or]: [
+                    {"nome_razao_social": {[Op.iLike]: `%${filtro}%`}},
+                    {"telefone": {[Op.iLike]: `%${filtro}%`}},
+                ]
+            }
+        }
+
+        console.log(filtro)
+
+
+        try{
+
+            let clientes = await Cliente.findAndCountAll({ where: { ...filtro },order: ['nome_razao_social']})
+
+
+            return res.status(200).json({ falha: false, dados: { clientes } })
+        }catch(error){
+            console.log(error)
+            return res.status(500).json({ falha: true, erro: error})
+        }
+
     }
 }
 
