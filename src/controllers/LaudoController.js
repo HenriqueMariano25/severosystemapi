@@ -910,6 +910,9 @@ class LaudoController {
 					model: Veiculo,
 					include: { model: TipoVeiculo, attributes: ["descricao"] },
 				},
+				{
+					model: TipoServico, attributes: ['id', 'descricao']
+				}
 			],
 		})
 

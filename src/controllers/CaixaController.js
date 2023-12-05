@@ -10,6 +10,7 @@ const {
 } = require("../models")
 const {Op, sequelize, Sequelize} = require("sequelize")
 const dayjs = require("dayjs")
+const redis = require("../lib/redis")
 
 async function existeCaixaAberto(payload) {
     const dados = await CaixaDia.findAll({
@@ -261,7 +262,7 @@ class CaixaController {
                     {
                         model: CaixaLancamento,
                         as: "lancamentos",
-                        attributes: {exclude: ["createdAt", "updatedAt"]},
+                        attributes: {exclude: ["deletedAt", "updatedAt"]},
                         include: [
                             {
                                 model: CaixaCategoria,
@@ -281,7 +282,6 @@ class CaixaController {
                 ],
                 where: filtro,
                 order: ["id"],
-
             })
 
             let resumo = await CaixaLancamento.findAll({
@@ -417,6 +417,93 @@ class CaixaController {
         }
     }
 
+    async buscarCaixaDiaRelatorio(req, res){
+        try {
+
+            let parametros = JSON.parse(req.query.filtros) || {}
+            let filtros
+            let { data_inicial, data_final, busca } = parametros
+
+            if (parametros.busca != null && parametros.busca != "") {
+                filtros = {
+                    [Op.or]: [
+                        { "$Usuario.nome$": { [Op.iLike]: `%${busca}%` } },
+                        { "status_caixa": { [Op.iLike]: `%${busca}%` } },
+                    ]
+                }
+            }
+
+            const { rows: caixas, count:total } = await CaixaDia.findAndCountAll({
+							include: [
+								{
+									model: CaixaLancamento,
+									as: "lancamentos",
+									attributes: { exclude: ["createdAt", "updatedAt"] },
+									include: [
+										{ model: CaixaCategoria, as: "categoria", attributes: ["descricao", "id"] },
+										{
+											model: CaixaFormaLanc,
+											as: "pagamento",
+											attributes: ["forma_id", "id"],
+											include: [{ model: CaixaFormaTipo, as: "tipo", attributes: ["descricao"] }],
+										},
+									],
+								},
+								{ model: Usuario, attributes: ["nome"] },
+							],
+							where: {
+								data_abertura: {
+									[Op.between]: [data_inicial, data_final],
+								},
+								...filtros,
+							},
+							order: ["id"],
+						})
+
+            return res.status(200).json({ falha: false, dados: { caixas, total} })
+        } catch (error) {
+            console.log(error)
+
+            return res.status(500).json({ falha: true, erro: error })
+        }
+    }
+
+    async buscarCaixaAtual(req, res){
+        let { usuario_id } = req.query
+
+        try{
+            let caixa = await CaixaDia.findOne({ where: { usuario_id, status_caixa: 'Aberto'}, order: ['id']})
+
+            return res.status(200).json({ falha: false, dados: { caixa } })
+        }catch(error){
+            console.log(error)
+            return res.status(500).json({ falha: true, erro: error})
+        }
+
+    }
+
+    async buscarCaixaAtualNovoPadrao(req, res) {
+        let { usuario_id } = req.query
+        
+        try{
+            let caixa = await CaixaDia.findOne({ where: { usuario_id, status_caixa: 'Aberto' },
+                include: [
+                    { model: CaixaLancamento, as:"lancamentos", include:[
+                            { model: CaixaCategoria, as: "categoria" },
+                            { model: CaixaFormaLanc, as: "pagamento", include:[
+                                    { model: CaixaFormaTipo, as: "tipo"}
+                                ] },
+                        ] }
+                ],
+                order: ['id'] })
+
+            return res.status(200).json({ falha: false, dados: { caixa } })
+        }catch(error){
+            console.log(error)
+            return res.status(500).json({ falha: true, erro: error})
+        }
+    }
+
     // -------  Categorias ----------  //
 
     async listarCategoria(req, res) {
@@ -432,6 +519,28 @@ class CaixaController {
             console.log(error)
 
             return res.status(500).json({falha: true, erro: error})
+        }
+    }
+
+    async buscarCategorias(req, res){
+        let { tipo } = req.query
+
+        try{
+            let categoriasBuscadas = await redis.get("CaixaCategoria")
+
+            if(!categoriasBuscadas){
+                categoriasBuscadas = await CaixaCategoria.findAll({ order: ["descricao"], attributes: ['id', 'descricao', 'tipo']})
+                await redis.set("CaixaCategoria", categoriasBuscadas, 1800)
+            }
+
+            if(tipo){
+                categoriasBuscadas = categoriasBuscadas.filter(o => o.tipo === tipo)
+            }
+
+            return res.status(200).json({ falha: false, dados: { categorias: categoriasBuscadas } })
+        }catch(error){
+            console.log(error)
+            return res.status(500).json({ falha: true, erro: error})
         }
     }
 
@@ -578,10 +687,11 @@ class CaixaController {
             const lancamento = await CaixaLancamento.findOne({
                 where: {id: req.params.id},
                 include: [
+                    { model: CaixaCategoria, as: "categoria" },
                     {
-                        model: CaixaCategoria,
-                        as: "categoria",
-                        attributes: ["descricao", "id"],
+                        model: CaixaFormaLanc, as: "pagamento", include: [
+                            { model: CaixaFormaTipo, as: "tipo" }
+                        ]
                     },
                 ],
             })
@@ -612,6 +722,21 @@ class CaixaController {
             return res.status(200).json({falha: false, dados: dados})
         } catch (error) {
             return res.status(500).json({falha: true, erro: error})
+        }
+    }
+
+    async buscarTipoPagamento(req, res){
+        try {
+            let formasBuscados = await redis.get("CaixaFormaTipo")
+
+            if (!formasBuscados) {
+                formasBuscados = await CaixaFormaTipo.findAll({ order: ["descricao"] })
+
+                await redis.set("CaixaFormaTipo", formasBuscados, 1800)
+            }
+            return res.status(200).json({ falha: false, dados: { formasPagamentos : formasBuscados } })
+        } catch (error) {
+            return res.status(500).json({ falha: true, erro: error })
         }
     }
 

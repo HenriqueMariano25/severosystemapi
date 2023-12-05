@@ -29,6 +29,7 @@
     "express": "^4.17.1",
     "factory-girl": "^5.0.4",
     "faker": "^5.5.3",
+    "ioredis": "^5.3.2",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.4",
     "pg": "^8.7.1",
