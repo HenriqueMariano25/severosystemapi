@@ -417,6 +417,21 @@ class CaixaController {
         }
     }
 
+    async fecharCaixa(req, res){
+        let { valor_fechamento, valor_total, id } = req.body
+
+        try{
+            let data_fechamento = dayjs().format('YYYY-MM-DD')
+            await CaixaDia.update({ valor_fechamento, data_fechamento, valor_total, status_caixa: 'Fechado'}, { where: { id}})
+
+            return res.status(200).json({ falha: false, dados: {  } })
+        }catch(error){
+            console.log(error)
+            return res.status(500).json({ falha: true, erro: error})
+        }
+    }
+
+
     async buscarCaixaDiaRelatorio(req, res){
         try {
 

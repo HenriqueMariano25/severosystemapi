@@ -30,6 +30,7 @@ routes.put('/caixa/formalanc/:id', CaixaController.alterarFormaPagamento)
 routes.delete('/caixa/formalanc/:id', CaixaController.deletarFormaPagamento)
 
 //----- Caixa Dia ---------//
+routes.put("/caixa/fechar", CaixaController.fecharCaixa)
 routes.get('/caixas/admin/por_dia', CaixaController.listarCaixaDiaPorDia)
 routes.get('/caixas/admin/extrato', CaixaController.listarCaixaDiaExtrato)
 routes.get('/caixas/admin/extrato/resumido', CaixaController.listarCaixaDiaExtratoResumido)
