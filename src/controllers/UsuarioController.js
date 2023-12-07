@@ -1,4 +1,4 @@
-const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario, Cliente } = require("../models")
+const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario, Cliente, CaixaDia } = require("../models")
 const { Op } = require("sequelize")
 const Sequelize = require("sequelize")
 const jwt = require("jsonwebtoken")
@@ -254,6 +254,11 @@ class UsuarioController {
       }).then((data) => {
         return data.get({plain: true})
       })
+
+      let caixaAberto = await CaixaDia.findAll({ where: { usuario_id: usuario.id, status_caixa: 'Aberto'}, order: ['id']})
+      usuario['caixa'] = caixaAberto.length > 0 ? caixaAberto[0] : null
+
+
 
       return res.status(200).json(usuario)
     } catch (err) {
