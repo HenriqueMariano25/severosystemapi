@@ -25,6 +25,8 @@ routes.get("/usuario/:id", UsuarioController.buscar)
 
 routes.get("/usuarios", UsuarioController.buscarTodos)
 
+routes.get("/usuarios/buscar", UsuarioController.buscarTodosNovoPadrao)
+
 
 
 

@@ -1,4 +1,4 @@
-const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario, Cliente, CaixaDia } = require("../models")
+const { Usuario, StatuUsuario, TipoUsuario, ClienteUsuario, Cliente, CaixaDia, Questao, Gravidade, TipoVeiculo } = require("../models")
 const { Op } = require("sequelize")
 const Sequelize = require("sequelize")
 const jwt = require("jsonwebtoken")
@@ -48,48 +48,50 @@ class UsuarioController {
   async editar(req, res) {
     const {
       nome,
-      usuario: novoUsuario,
+      usuario,
       cargo,
       data_admissao,
       statu_usuario_id,
       tipo_usuario_id,
       perito,
       perito_auxiliar,
-        senha,
       cliente,
     } = req.body
 
     const { id } = req.params
 
-    const usuario = await Usuario.findOne({ where: { id } })
-
-    if (!usuario) return res.status(400).json({ message: "Usuário não encontrado" })
-
-    await usuario.update({
+    await Usuario.update({
       nome,
-      usuario: novoUsuario,
+      usuario,
       cargo,
       data_admissao,
       statu_usuario_id,
       tipo_usuario_id,
       perito,
       perito_auxiliar,
-      senha
+    }, { where: { id }})
+
+    const usuarioEncontrado = await Usuario.findOne({
+      where: { id },
+      attributes: { exclude: ['createdAt', 'updatedAd', 'deletedAt', 'senha_hash'] },
+      include: [
+        { model: TipoUsuario, attributes: ['id', 'descricao'] }
+      ]
     })
 
-    const [ clienteEncontrado, created ] = await ClienteUsuario.findOrCreate({
-      where: { usuario_id: usuario.id },
-      defaults:{
-        cliente_id: cliente.id, usuario_id: usuario.id
+    let clienteEncontrado = await ClienteUsuario.findOne({ where: { usuario_id: id },
+      attributes: ['id'] })
+
+    if(clienteEncontrado){
+      if(cliente.id){
+        await ClienteUsuario.update({ cliente_id: cliente.id }, { where: { id: clienteEncontrado.id } })
+      }else{
+        await ClienteUsuario.destroy({ where: { id: clienteEncontrado.id }})
       }
-    })
 
-    if(!created){
-      await ClienteUsuario.update({ cliente_id: cliente.id}, { where: { id: clienteEncontrado.id }})
     }
 
-
-    return res.status(200).json({ usuario })
+    return res.status(200).json({ usuario: usuarioEncontrado })
   }
 
   async deletar(req, res) {
@@ -108,7 +110,7 @@ class UsuarioController {
     const { id } = req.params
 
     const usuario = await Usuario.findOne({ where: { id },
-      attributes: { exclude: ['createdAt', 'updatedAd', 'deletedAt']},
+      attributes: { exclude: ['createdAt', 'updatedAd', 'deletedAt', 'senha_hash']},
       include: [
         { model: Cliente, attributes: ['id', 'nome_razao_social'] }
       ]
@@ -128,6 +130,40 @@ class UsuarioController {
     })
 
     return res.status(200).json({ usuarios: usuarios })
+  }
+
+  async buscarTodosNovoPadrao(req, res) {
+    try {
+      let { page, size, busca } = req.query
+
+      let filtro
+      busca = JSON.parse(busca) || {}
+      if (busca.texto != null && busca.texto != "") {
+        filtro = {
+          [Op.or]: [
+            { "nome": { [Op.iLike]: `%${busca.texto}%` } },
+            { "cargo": { [Op.iLike]: `%${busca.texto}%` } },
+            { "usuario": { [Op.iLike]: `%${busca.texto}%` } },
+            { "$TipoUsuario.descricao$": { [Op.iLike]: `%${busca.texto}%` } },
+          ]
+        }
+      }
+
+
+      let usuarios = await Usuario.findAll({
+        attributes: ['id', 'nome', 'cargo', 'usuario'],
+        where: { ...filtro },
+        include: [
+          { model: TipoUsuario, attributes: ['id', 'descricao'] }
+        ],
+        order: [["nome"]],
+      })
+
+      return res.status(200).json({ falha: false, dados: { usuarios } })
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ falha: true, erro: error })
+    }
   }
 
   async buscarStatuUsuario(req, res) {
