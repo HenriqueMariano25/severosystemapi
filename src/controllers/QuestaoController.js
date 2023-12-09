@@ -1,4 +1,6 @@
 const { Questao, Gravidade, TipoVeiculo } = require("../models")
+const { Op } = require("sequelize");
+const { Logger } = require("sequelize/lib/utils/logger");
 
 class QuestaoController {
 	async cadastrar(req, res) {
@@ -83,6 +85,42 @@ class QuestaoController {
 		})
 
 		return res.status(200).json({ questoes: questoes })
+	}
+
+	async buscarTodosNovoPadrao(req, res){
+		try{
+			let { page, size, busca } = req.query
+
+			let filtro
+			busca = JSON.parse(busca) || {}
+			if (busca.texto != null && busca.texto != "") {
+				filtro = {
+					[Op.or]: [
+						{ "titulo": { [Op.iLike]: `%${busca.texto}%` } },
+						{ "componente": { [Op.iLike]: `%${busca.texto}%` } },
+					]
+				}
+			}
+
+
+			let questoes = await Questao.findAll({
+				include: [
+					{
+						model: Gravidade,
+						attributes: { exclude: ["createdAt", "deletedAt", "updatedAt"] },
+					},
+					{ model: TipoVeiculo },
+				],
+				where: { ...filtro },
+				attributes: { exclude: ["createdAt", "deletedAt", "updatedAt"] },
+				order: [["titulo"]],
+			})
+
+		    return res.status(200).json({ falha: false, dados: { questoes  } })
+		}catch(error){
+		    console.log(error)
+		    return res.status(500).json({ falha: true, erro: error})
+		}
 	}
 
 	async buscar(req, res) {

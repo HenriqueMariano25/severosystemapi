@@ -9,10 +9,15 @@ routes.delete("/questao/:id", QuestaoController.deletar)
 
 routes.get("/questao/gravidades", QuestaoController.buscarGravidades)
 
-routes.get("/questoes/:tipo_veiculo_id", QuestaoController.buscarTodosPorTipoVeiculo)
-
 routes.get("/questoes", QuestaoController.buscarTodos)
 
+routes.get("/questoes/buscar", QuestaoController.buscarTodosNovoPadrao)
+
+routes.get("/questoes/:tipo_veiculo_id", QuestaoController.buscarTodosPorTipoVeiculo)
+
+
 routes.get("/questao/:id", QuestaoController.buscar)
+
+
 
 module.exports = routes
