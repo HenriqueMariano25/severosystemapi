@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'lancamento_id',
             as: "CaixaQuitacao"
         })
+
+        CaixaLancamento.belongsTo(models.Laudo, {
+            foreignKey: 'laudo_id', as: 'laudo'
+        })
     }
     return CaixaLancamento
 }

@@ -24,6 +24,8 @@ class ClienteController {
 
         let cliente = await Cliente.findOne({where: {id}})
 
+        console.log(numero);
+
         await cliente.update({nome_razao_social, email, cpf_cnpj, telefone, cnh, rua, bairro, cidade, uf, cep, numero, complemento})
 
         return res.status(200).json({cliente: cliente})
@@ -50,12 +52,13 @@ class ClienteController {
 
         let cliente = await Cliente.findOne({where: {id}})
 
+        console.log(cliente);
+
         return res.status(200).json({ cliente: cliente})
     }
 
     async buscarNovoPadrao(req, res) {
         let { filtro } = req.query
-
 
         if(filtro){
             filtro = {
