@@ -31,7 +31,7 @@ class LeilaoController {
 					where: { id: configuracaoCriada.id },
 					include: [
 						{ model: Usuario, attributes: ["nome", "id"] },
-						{ model: Cliente, attributes: ["nome_razao_social", "id"] },
+						{ model: Cliente, attributes: ["nome_razao_social", "id", "cpf_cnpj"] },
 					],
 					attributes: ["cliente_leilao_id", "id", "perito_id"],
 				})
@@ -47,7 +47,7 @@ class LeilaoController {
 					where: { id: configuracaoEncontrada.id },
 					include: [
 						{ model: Usuario, attributes: ["nome", "id"] },
-						{ model: Cliente, attributes: ["nome_razao_social", "id"] },
+						{ model: Cliente, attributes: ["nome_razao_social", "id", "cpf_cnpj"] },
 					],
 					attributes: ["cliente_leilao_id", "id", "perito_id"],
 				})
