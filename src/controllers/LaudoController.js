@@ -77,6 +77,8 @@ class LaudoController {
 	async cadastrarLaudo(req, res) {
 		let { tipo_servico_id } = req.body
 
+		console.log(req.body);
+
 		let {
 			placa,
 			ano,
@@ -622,6 +624,7 @@ class LaudoController {
         ano,
         hodometro,
         uf,
+				grv,
         cidade,
         marca_modelo,
         chassi_bin,
@@ -652,6 +655,7 @@ class LaudoController {
           motor_bin,
           motor_atual,
           cor_bin,
+					grv,
           cor_atual,
           combustivel,
           renavam,
@@ -891,10 +895,11 @@ class LaudoController {
 			include: [
 				{ model: Cliente },
 				{ model: Questao, include: { model: Gravidade, attributes: ["cor", "icone", "descricao"] } },
-				{ model: Usuario, as: "perito" },
+				{ model: Usuario, as: "perito", attributes: ["nome", "id"], },
 				{
 					model: Usuario,
 					as: "perito_auxiliar",
+					attributes: ["nome", "id"],
 				},
 				{
 					model: Usuario,

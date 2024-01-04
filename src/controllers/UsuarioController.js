@@ -150,8 +150,10 @@ class UsuarioController {
       }
 
 
-      let usuarios = await Usuario.findAll({
+      let { count: total, rows: usuarios } = await Usuario.findAndCountAll({
         attributes: ['id', 'nome', 'cargo', 'usuario'],
+        limit: size,
+        offset: page * size,
         where: { ...filtro },
         include: [
           { model: TipoUsuario, attributes: ['id', 'descricao'] }
@@ -159,7 +161,7 @@ class UsuarioController {
         order: [["nome"]],
       })
 
-      return res.status(200).json({ falha: false, dados: { usuarios } })
+      return res.status(200).json({ falha: false, dados: { usuarios, total } })
     } catch (error) {
       console.log(error)
       return res.status(500).json({ falha: true, erro: error })

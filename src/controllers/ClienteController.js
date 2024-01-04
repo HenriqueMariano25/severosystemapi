@@ -69,9 +69,6 @@ class ClienteController {
             }
         }
 
-        console.log(filtro)
-
-
         try{
 
             let clientes = await Cliente.findAndCountAll({ where: { ...filtro },order: ['nome_razao_social']})

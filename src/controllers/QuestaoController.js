@@ -103,7 +103,7 @@ class QuestaoController {
 			}
 
 
-			let questoes = await Questao.findAll({
+			let { rows: questoes, count:total }  = await Questao.findAndCountAll({
 				include: [
 					{
 						model: Gravidade,
@@ -112,11 +112,13 @@ class QuestaoController {
 					{ model: TipoVeiculo },
 				],
 				where: { ...filtro },
+				limit: size,
+				offset: page * size,
 				attributes: { exclude: ["createdAt", "deletedAt", "updatedAt"] },
 				order: [["titulo"]],
 			})
 
-		    return res.status(200).json({ falha: false, dados: { questoes  } })
+		    return res.status(200).json({ falha: false, dados: { questoes, total  } })
 		}catch(error){
 		    console.log(error)
 		    return res.status(500).json({ falha: true, erro: error})
