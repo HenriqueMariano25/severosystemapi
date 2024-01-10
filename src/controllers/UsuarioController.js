@@ -288,6 +288,10 @@ class UsuarioController {
       req.user = decoded
       let usuario = await Usuario.findOne({
         where: {id: req.user.id},
+        include: [
+          { model: Cliente, attributes: ['id']},
+          { model: TipoUsuario, attributes: ['descricao']}
+        ],
         attributes: {exclude: ["senha_hash", "createdAt", "updatedAt", "deletedAt"]},
       }).then((data) => {
         return data.get({plain: true})
@@ -300,6 +304,7 @@ class UsuarioController {
 
       return res.status(200).json(usuario)
     } catch (err) {
+      console.log(err);
       return res.status(401).send("Invalid Token")
     }
   }
