@@ -14,6 +14,9 @@
     "type": "git",
     "url": "git+https://github.com/HenriqueMariano25/severosystemapi.git"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "author": "HenriqueMariano25",
   "license": "ISC",
   "bugs": {
