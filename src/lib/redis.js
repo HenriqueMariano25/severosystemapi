@@ -3,8 +3,7 @@ const Redis = require("ioredis")
 class redis {
   constructor() {
     this.redis = new Redis({
-      host: process.env.REDIS_HOST || "localhost",
-      port: process.env.REDIS_PORT || 6379,
+      url: process.env.REDIS_URL
       // keyPrefix: process.env.REDIS_HOST || 6379,
     })
   }
