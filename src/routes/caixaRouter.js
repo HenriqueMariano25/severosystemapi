@@ -43,6 +43,7 @@ routes.get('/caixa/verificar_caixa_aberto/:usuario_id', CaixaController.verifica
 
 routes.get('/caixa/atual', CaixaController.buscarCaixaAtual)
 routes.get("/caixa/atual/novo_padrao", CaixaController.buscarCaixaAtualNovoPadrao)
+routes.get("/caixa/buscar/:id", CaixaController.buscarCaixa)
 routes.get("/caixa/relatorio/porDia/novoPadrao", CaixaController.buscarCaixaDiaRelatorio)
 routes.get('/caixa', CaixaController.listarCaixaDia)
 

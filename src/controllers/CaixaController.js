@@ -512,12 +512,41 @@ class CaixaController {
                                 ] },
                         ] }
                 ],
-                order: ['id'] })
+                order: [['id', 'DESC']] })
 
             return res.status(200).json({ falha: false, dados: { caixa } })
         }catch(error){
             console.log(error)
             return res.status(500).json({ falha: true, erro: error})
+        }
+    }
+
+    async buscarCaixa(req, res) {
+        let { id } = req.params
+
+
+        try {
+            let caixa = await CaixaDia.findOne({
+                where: { id },
+                include: [
+                    {
+                        model: CaixaLancamento, as: "lancamentos", include: [
+                            { model: CaixaCategoria, as: "categoria" },
+                            {
+                                model: CaixaFormaLanc, as: "pagamento", include: [
+                                    { model: CaixaFormaTipo, as: "tipo" }
+                                ]
+                            },
+                        ]
+                    }
+                ],
+                order: ['id']
+            })
+
+            return res.status(200).json({ falha: false, dados: { caixa } })
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ falha: true, erro: error })
         }
     }
 
