@@ -77,8 +77,6 @@ class LaudoController {
 	async cadastrarLaudo(req, res) {
 		let { tipo_servico_id } = req.body
 
-		console.log(req.body);
-
 		let {
 			placa,
 			ano,
@@ -294,9 +292,12 @@ class LaudoController {
 			const file = req.files[0]
 
 			let peca_veiculo = img.nome
-			let nomeFormatado = `laudo${laudo_id}-${dayjs().format("DDMMYYYYHHmmssSSS")}-${
-				file.originalname
-			}`
+
+			let extensao
+			if(file.mimetype === "image/jpeg"){
+				extensao = "jpg"
+			}
+			let nomeFormatado = `laudo${laudo_id}-${dayjs().format("DDMMYYYYHHmmssSSS")}.${extensao}`
 
 			let url = ""
 
@@ -304,10 +305,22 @@ class LaudoController {
 				await sharp(file.buffer).toFile(path.resolve("../images", nomeFormatado))
 			} else if (process.env.STORAGE_TYPE === "local") {
 				await sharp(file.buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
+			}else if( process.env.STORAGE_TYPE === 's3'){
+				const originalFile = file
+				const newFile = await sharpify(file)
+				await uploadToAWS({
+					Body: newFile,
+					ACL: 'public-read',
+					Bucket: process.env.BUCKET_NAME,
+					ContentType: newFile.mimetype,
+					Key: `${nomeFormatado}`
+				})
 			}
 
 			if (process.env.STORAGE_TYPE === "production") {
 				url = `${req.protocol}://104.197.15.193/api/files/${nomeFormatado}`
+			} else if(process.env.STORAGE_TYPE === "s3"){
+				url = `https://severo-nuxt.s3.sa-east-1.amazonaws.com/${nomeFormatado}`
 			} else {
 				url = `${req.protocol}://${req.get("host")}/files/${nomeFormatado}`
 			}
@@ -320,6 +333,7 @@ class LaudoController {
 				peca_veiculo_id: 1,
 			})
 			return res.status(200).json({ falha: false, dados: { img: imgCriada } })
+			// return res.status(200).json({ falha: false, dados: {  } })
 		} catch (error) {
 			console.log(error)
 			return res.status(500).json({ falha: true, erro: error })
@@ -418,13 +432,15 @@ class LaudoController {
 				        if (err) throw err
 				      }
 				  )
+				} else if(process.env.STORAGE_TYPE === "s3"){
+
 				} else {
-				  fs.unlink(
-				      path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
-				      function (err) {
-				        if (err) throw err
-				      }
-				  )
+					fs.unlink(
+						path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
+						function(err) {
+							if (err) throw err
+						}
+					)
 				}
 				}
 
@@ -435,38 +451,6 @@ class LaudoController {
 			console.log(error)
 			return res.status(500).json({ falha: true, erro: error })
 		}
-
-		// if (id) {
-		//   // let img = await ImagemLaudo.findOne({ where: { id } })
-		//   // if(img){
-		//   //
-		//   //   if (process.env.STORAGE_TYPE === "production") {
-		//   //     console.log(path.resolve(__dirname, "..", "..", "..", "images", img.nome))
-		//   //
-		//   //     fs.unlink(
-		//   //       path.resolve(__dirname, "..", "..", "..", "images", img.nome),
-		//   //       function (err) {
-		//   //         if (err) throw err
-		//   //       }
-		//   //     )
-		//   //   } else {
-		//   //     console.log(path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome))
-		//   //
-		//   //     fs.unlink(
-		//   //       path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
-		//   //       function (err) {
-		//   //         if (err) throw err
-		//   //       }
-		//   //     )
-		//   //   }
-		//   // }
-		//   //
-		//   // await ImagemLaudo.destroy({ where: { id } })
-		//
-		//   return res.status(200).json({ falha: false, dados: { img: img }})
-		// } else {
-		//   return res.status(400).json({ falha: true, erro: error })
-		// }
 	}
 
 	async editarPecaImagem(req, res) {
@@ -608,8 +592,8 @@ class LaudoController {
 				laudo = result[1]
 			})
 			return await res.status(200).json({ laudo: laudo })
-		} catch (e) {
-			console.log(e)
+		} catch (error) {
+			console.log(error)
 			return res.status(400).json({ mensagem: "Erro ao editar laudo" })
 		}
 	}
@@ -640,6 +624,7 @@ class LaudoController {
         crlv,
         tipo_lacre,
         lacre,
+				tipo_veiculo_id
       } = veiculo
 
       let { id: veiculo_id } = await Veiculo.update(
@@ -664,7 +649,7 @@ class LaudoController {
           crlv,
           tipo_lacre,
           lacre,
-          tipo_veiculo_id: veiculo.tipo_veiculo.id,
+          tipo_veiculo_id: tipo_veiculo_id,
         },
         { where: { id: veiculo.id } },
       )
@@ -953,8 +938,8 @@ class LaudoController {
 			}
 
 			return res.status(200).json({ laudo: "laudo" })
-		} catch (e) {
-			console.log(e)
+		} catch (error) {
+			console.log(error)
 			return res.status(400).json({ mensagem: "Erro ao deletar Laudo!" })
 		}
 	}
