@@ -573,11 +573,11 @@ class CaixaController {
 
         try{
             let categoriasBuscadas = await redis.get("CaixaCategoria")
-
             if(!categoriasBuscadas){
                 categoriasBuscadas = await CaixaCategoria.findAll({ order: ["descricao"], attributes: ['id', 'descricao', 'tipo']})
                 await redis.set("CaixaCategoria", categoriasBuscadas, 1800)
             }
+
 
             if(tipo){
                 categoriasBuscadas = categoriasBuscadas.filter(o => o.tipo === tipo)
