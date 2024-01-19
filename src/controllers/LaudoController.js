@@ -438,7 +438,7 @@ class LaudoController {
 					fs.unlink(
 						path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
 						function(err) {
-							if (err) throw err
+							if (err) console.log(err)
 						}
 					)
 				}

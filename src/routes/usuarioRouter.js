@@ -9,6 +9,8 @@ routes.get("/usuario/login", UsuarioController.login)
 
 routes.put("/usuario/alterar_senha", UsuarioController.alterarSenha)
 
+routes.put("/usuario/resetar_senha", UsuarioController.resetarSenha)
+
 routes.post("/usuario",UsuarioController.cadastrar)
 
 routes.put("/usuario/:id", UsuarioController.editar)

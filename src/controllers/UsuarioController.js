@@ -308,6 +308,24 @@ class UsuarioController {
       return res.status(401).send("Invalid Token")
     }
   }
+
+  async resetarSenha(req, res) {
+    let { usuario_id } = req.body
+
+    console.log(usuario_id);
+    try {
+      let usuario = await Usuario.findOne({ where: { id: usuario_id } })
+      usuario.senha = "123456789"
+      usuario.save()
+
+      return res.status(200).json({ mensagem: "Senha resetada" })
+    } catch (error) {
+      console.log(error)
+
+      return res.status(500).json({ menssagem: error })
+    }
+  }
+
 }
 
 module.exports = new UsuarioController()
