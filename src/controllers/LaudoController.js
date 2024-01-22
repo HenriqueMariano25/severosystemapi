@@ -130,7 +130,7 @@ class LaudoController {
 				crlv,
 				tipo_lacre,
 				lacre,
-				tipo_veiculo_id: req.body.veiculo.tipo_veiculo.id,
+				tipo_veiculo_id: req.body.veiculo.tipo_veiculo_id,
 			})
 
 			let laudoCriado = await Laudo.create({
