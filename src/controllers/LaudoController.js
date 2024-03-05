@@ -53,24 +53,26 @@ const uploadToAWS = (props) => {
 	})
 }
 
-async function adicionaRemoveQuestoes(laudo_id, questoes)
-{
-  let questoesLaudo = await LaudoQuestao.findAll({ where: { laudo_id: laudo_id }, attributes: ['questao_id']})
-  let questoesLaudoIds = questoesLaudo.map( o => o.questao_id)
+async function adicionaRemoveQuestoes(laudo_id, questoes) {
+	let questoesLaudo = await LaudoQuestao.findAll({
+		where: { laudo_id: laudo_id },
+		attributes: ["questao_id"],
+	})
+	let questoesLaudoIds = questoesLaudo.map((o) => o.questao_id)
 
-  //ADICIONANDO NO LAUDO
-  for(let questao of questoes){
-    if(!questoesLaudoIds.includes(questao)){
-      await LaudoQuestao.create({ laudo_id: laudo_id, questao_id: questao})
-    }
-  }
+	//ADICIONANDO NO LAUDO
+	for (let questao of questoes) {
+		if (!questoesLaudoIds.includes(questao)) {
+			await LaudoQuestao.create({ laudo_id: laudo_id, questao_id: questao })
+		}
+	}
 
-  //REMOVE NO LAUDO
-  for(let questao of questoesLaudoIds){
-    if (!questoes.includes(questao)) {
-      await LaudoQuestao.destroy({ where:{ laudo_id, questao_id: questao } })
-    }
-  }
+	//REMOVE NO LAUDO
+	for (let questao of questoesLaudoIds) {
+		if (!questoes.includes(questao)) {
+			await LaudoQuestao.destroy({ where: { laudo_id, questao_id: questao } })
+		}
+	}
 }
 
 class LaudoController {
@@ -294,7 +296,7 @@ class LaudoController {
 			let peca_veiculo = img.nome
 
 			let extensao
-			if(file.mimetype === "image/jpeg"){
+			if (file.mimetype === "image/jpeg") {
 				extensao = "jpg"
 			}
 			let nomeFormatado = `laudo${laudo_id}-${dayjs().format("DDMMYYYYHHmmssSSS")}.${extensao}`
@@ -305,21 +307,21 @@ class LaudoController {
 				await sharp(file.buffer).toFile(path.resolve("../images", nomeFormatado))
 			} else if (process.env.STORAGE_TYPE === "local") {
 				await sharp(file.buffer).toFile(path.resolve("tmp/uploads/", nomeFormatado))
-			}else if( process.env.STORAGE_TYPE === 's3'){
+			} else if (process.env.STORAGE_TYPE === "s3") {
 				const originalFile = file
 				const newFile = await sharpify(file)
 				await uploadToAWS({
 					Body: newFile,
-					ACL: 'public-read',
+					ACL: "public-read",
 					Bucket: process.env.BUCKET_NAME,
 					ContentType: newFile.mimetype,
-					Key: `${nomeFormatado}`
+					Key: `${nomeFormatado}`,
 				})
 			}
 
 			if (process.env.STORAGE_TYPE === "production") {
 				url = `${req.protocol}://104.197.15.193/api/files/${nomeFormatado}`
-			} else if(process.env.STORAGE_TYPE === "s3"){
+			} else if (process.env.STORAGE_TYPE === "s3") {
 				url = `https://severo-nuxt.s3.sa-east-1.amazonaws.com/${nomeFormatado}`
 			} else {
 				url = `${req.protocol}://${req.get("host")}/files/${nomeFormatado}`
@@ -422,26 +424,21 @@ class LaudoController {
 
 		try {
 			if (id) {
-				let img = await ImagemLaudo.findOne({where: {id}})
+				let img = await ImagemLaudo.findOne({ where: { id } })
 				if (img) {
-
-				if (process.env.STORAGE_TYPE === "production") {
-				  fs.unlink(
-				      path.resolve(__dirname, "..", "..", "images", img.nome),
-				      function (err) {
-				        if (err) throw err
-				      }
-				  )
-				} else if(process.env.STORAGE_TYPE === "s3"){
-
-				} else {
-					fs.unlink(
-						path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
-						function(err) {
-							if (err) console.log(err)
-						}
-					)
-				}
+					if (process.env.STORAGE_TYPE === "production") {
+						fs.unlink(path.resolve(__dirname, "..", "..", "images", img.nome), function (err) {
+							if (err) throw err
+						})
+					} else if (process.env.STORAGE_TYPE === "s3") {
+					} else {
+						fs.unlink(
+							path.resolve(__dirname, "..", "..", "tmp", "uploads", img.nome),
+							function (err) {
+								if (err) console.log(err)
+							},
+						)
+					}
 				}
 
 				await ImagemLaudo.destroy({ where: { id } })
@@ -602,104 +599,102 @@ class LaudoController {
 		let { cliente, proprietario, veiculo, resumo, questoes } = req.body
 		let { id: laudo_id } = req.params
 
-    try{
-      let {
-        placa,
-        ano,
-        hodometro,
-        uf,
+		try {
+			let {
+				placa,
+				ano,
+				hodometro,
+				uf,
 				grv,
-        cidade,
-        marca_modelo,
-        chassi_bin,
-        chassi_atual,
-        motor_bin,
-        motor_atual,
-        cor_bin,
-        cor_atual,
-        combustivel,
-        renavam,
-        cambio_bin,
-        cambio_atual,
-        crlv,
-        tipo_lacre,
-        lacre,
-				tipo_veiculo_id
-      } = veiculo
+				cidade,
+				marca_modelo,
+				chassi_bin,
+				chassi_atual,
+				motor_bin,
+				motor_atual,
+				cor_bin,
+				cor_atual,
+				combustivel,
+				renavam,
+				cambio_bin,
+				cambio_atual,
+				crlv,
+				tipo_lacre,
+				lacre,
+				tipo_veiculo_id,
+			} = veiculo
 
-      let { id: veiculo_id } = await Veiculo.update(
-        {
-          placa,
-          ano,
-          hodometro,
-          uf,
-          cidade,
-          marca_modelo,
-          chassi_bin,
-          chassi_atual,
-          motor_bin,
-          motor_atual,
-          cor_bin,
+			let { id: veiculo_id } = await Veiculo.update(
+				{
+					placa,
+					ano,
+					hodometro,
+					uf,
+					cidade,
+					marca_modelo,
+					chassi_bin,
+					chassi_atual,
+					motor_bin,
+					motor_atual,
+					cor_bin,
 					grv,
-          cor_atual,
-          combustivel,
-          renavam,
-          cambio_bin,
-          cambio_atual,
-          crlv,
-          tipo_lacre,
-          lacre,
-          tipo_veiculo_id: tipo_veiculo_id,
-        },
-        { where: { id: veiculo.id } },
-      )
+					cor_atual,
+					combustivel,
+					renavam,
+					cambio_bin,
+					cambio_atual,
+					crlv,
+					tipo_lacre,
+					lacre,
+					tipo_veiculo_id: tipo_veiculo_id,
+				},
+				{ where: { id: veiculo.id } },
+			)
 
-      let {
-        nome_razao_social: prop_nome,
-        cpf_cnpj: prop_cpf_cnpj,
-        cnh: prop_cnh,
-        telefone: prop_telefone,
-        email: prop_email,
-      } = proprietario
+			let {
+				nome_razao_social: prop_nome,
+				cpf_cnpj: prop_cpf_cnpj,
+				cnh: prop_cnh,
+				telefone: prop_telefone,
+				email: prop_email,
+			} = proprietario
 
-      let {
-        situacao,
-        observacao,
-        perito: perito_id,
-        perito_auxiliar: perito_auxiliar_id,
-        digitador: digitador_id,
-      } = resumo
+			let {
+				situacao,
+				observacao,
+				perito: perito_id,
+				perito_auxiliar: perito_auxiliar_id,
+				digitador: digitador_id,
+			} = resumo
 
-      let { id: cliente_id } = cliente
+			let { id: cliente_id } = cliente
 
-      await Laudo.update(
-        {
-          cliente_id,
-          prop_nome,
-          prop_cpf_cnpj,
-          prop_cnh,
-          prop_telefone,
-          prop_email,
-          veiculo_id,
-          situacao,
-          observacao,
-          perito_id,
-          perito_auxiliar_id,
-          digitador_id,
-        },
-        { where: { id: laudo_id } },
-      )
+			await Laudo.update(
+				{
+					cliente_id,
+					prop_nome,
+					prop_cpf_cnpj,
+					prop_cnh,
+					prop_telefone,
+					prop_email,
+					veiculo_id,
+					situacao,
+					observacao,
+					perito_id,
+					perito_auxiliar_id,
+					digitador_id,
+				},
+				{ where: { id: laudo_id } },
+			)
 
-      await adicionaRemoveQuestoes(laudo_id, questoes)
+			await adicionaRemoveQuestoes(laudo_id, questoes)
 
-        return res.status(200).json({ falha: false, dados: {  } })
-    }catch(error){
-        console.log(error)
-        return res.status(500).json({ falha: true, erro: error})
-    }
+			return res.status(200).json({ falha: false, dados: {} })
+		} catch (error) {
+			console.log(error)
+			return res.status(500).json({ falha: true, erro: error })
+		}
 	}
-
-
 
 	async finalizar(req, res) {
 		let { id } = req.params
@@ -879,8 +874,11 @@ class LaudoController {
 			where: { id },
 			include: [
 				{ model: Cliente },
-				{ model: Questao, include: { model: Gravidade, attributes: ["cor", "icone", "descricao"] } },
-				{ model: Usuario, as: "perito", attributes: ["nome", "id"], },
+				{
+					model: Questao,
+					include: { model: Gravidade, attributes: ["cor", "icone", "descricao"] },
+				},
+				{ model: Usuario, as: "perito", attributes: ["nome", "id"] },
 				{
 					model: Usuario,
 					as: "perito_auxiliar",
@@ -901,8 +899,9 @@ class LaudoController {
 					include: { model: TipoVeiculo, attributes: ["descricao"] },
 				},
 				{
-					model: TipoServico, attributes: ['id', 'descricao']
-				}
+					model: TipoServico,
+					attributes: ["id", "descricao"],
+				},
 			],
 		})
 
@@ -1041,14 +1040,14 @@ class LaudoController {
 				[Op.and]: [
 					busca.data_final != null && busca.data_final != ""
 						? {
-							createdAt: { [Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD") },
-						}
+								createdAt: { [Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD") },
+						  }
 						: "",
 					busca.data_inicial != null && busca.data_inicial != ""
 						? { createdAt: { [Op.gte]: busca.data_inicial } }
 						: "",
 				],
-				cliente_id: parseInt(cliente_id)
+				cliente_id: parseInt(cliente_id),
 			},
 			limit: size,
 			offset: page * size,
@@ -1090,6 +1089,64 @@ class LaudoController {
 		})
 
 		return res.status(200).json({ laudos: laudos })
+	}
+
+	async buscarTodosPaginadosPerito(req, res) {
+		let { busca } = req.query
+
+		busca = JSON.parse(busca) || {}
+
+		try {
+			const laudos = await Laudo.findAndCountAll({
+				where: {
+					tipo_servico_id: { [Op.not]: [3] },
+					[Op.or]: [
+						{ id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null },
+						{ "$Veiculo.placa$": { [Op.like]: "%" + busca.texto + "%" } },
+						{ "$Veiculo.marca_modelo$": { [Op.like]: "%" + busca.texto + "%" } },
+						{ "$Veiculo.chassi_bin$": { [Op.like]: "%" + busca.texto + "%" } },
+						{ "$Veiculo.chassi_atual$": { [Op.like]: "%" + busca.texto + "%" } },
+					],
+					[Op.and]: [
+						busca.data_final != null && busca.data_final != ""
+							? {
+									createdAt: {
+										[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
+									},
+							  }
+							: "",
+						busca.data_inicial != null && busca.data_inicial != ""
+							? { createdAt: { [Op.gte]: busca.data_inicial } }
+							: "",
+					],
+				},
+				include: [
+					{
+						model: Veiculo,
+						include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+						attributes: { exclude: ["createdAt", "updatedAt"] },
+					},
+					{
+						model: Usuario,
+						as: "perito",
+						attributes: ["nome"],
+					},
+					{
+						model: ImagemLaudo,
+						attributes: ["url", 'peca_veiculo'],
+						where: { [Op.or]: [{peca_veiculo: "traseira"}, { peca_veiculo: "dianteira" }]},
+						required: false,
+						order: [['peca_veiculo', 'DESC']]
+					},
+				],
+				order: [["id", "DESC"]],
+			})
+
+			return res.status(200).json({ falha: false, dados: { laudos } })
+		} catch (error) {
+			console.log(error)
+			return res.status(500).json({ falha: true, erro: error })
+		}
 	}
 
 	async buscarTodos(req, res) {

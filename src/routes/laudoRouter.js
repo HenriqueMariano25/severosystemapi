@@ -39,6 +39,8 @@ routes.get("/laudos/buscar", LaudoController.buscarTodosPaginados)
 
 routes.get("/laudos/buscar/cliente", LaudoController.buscarTodosPaginadosCliente)
 
+routes.get("/laudo/buscar/peritos", LaudoController.buscarTodosPaginadosPerito)
+
 routes.get("/laudos/cliente", LaudoController.buscarTodosCliente)
 
 routes.get("/laudos/cliente/busca", LaudoController.buscarEspecificoCliente)
