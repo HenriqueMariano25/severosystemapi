@@ -279,8 +279,6 @@ class LaudoController {
 			let img = dados.img
 			let resumo = dados.resumo
 
-			console.log(perito_id);
-
 			if (resumo.perito_auxiliar) {
 				let perito_auxiliar_id = resumo.perito_auxiliar
 				await Laudo.update(
