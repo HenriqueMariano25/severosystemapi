@@ -1103,12 +1103,13 @@ class LaudoController {
 	}
 
 	async buscarTodosPaginadosPerito(req, res) {
-		let { busca } = req.query
+		let { busca, pagina } = req.query
 
 		busca = JSON.parse(busca) || {}
 
 		try {
-			const laudos = await Laudo.findAndCountAll({
+			const laudos = await Laudo.findAll({
+				subQuery: false,
 				where: {
 					tipo_servico_id: { [Op.not]: [3] },
 					[Op.or]: [
@@ -1130,9 +1131,11 @@ class LaudoController {
 							? { createdAt: { [Op.gte]: busca.data_inicial } }
 							: "",
 					],
+					status_laudo_id: { [Op.not]: 3}
 				},
 				include: [
 					{
+						required: false,
 						model: Veiculo,
 						include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
 						attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -1150,10 +1153,47 @@ class LaudoController {
 						order: [['peca_veiculo', 'DESC']]
 					},
 				],
+				limit: 50,
+				offset: (pagina - 1) * 50,
 				order: [["id", "DESC"]],
 			})
 
-			return res.status(200).json({ falha: false, dados: { laudos } })
+			const total = await Laudo.findAll({
+				where: {
+					tipo_servico_id: { [Op.not]: [3] },
+					[Op.or]: [
+						{ id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null },
+						{ "$Veiculo.placa$": { [Op.like]: "%" + busca.texto + "%" } },
+						{ "$Veiculo.marca_modelo$": { [Op.like]: "%" + busca.texto + "%" } },
+						{ "$Veiculo.chassi_bin$": { [Op.like]: "%" + busca.texto + "%" } },
+						{ "$Veiculo.chassi_atual$": { [Op.like]: "%" + busca.texto + "%" } },
+					],
+					[Op.and]: [
+						busca.data_final != null && busca.data_final != ""
+							? {
+								createdAt: {
+									[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
+								},
+							}
+							: "",
+						busca.data_inicial != null && busca.data_inicial != ""
+							? { createdAt: { [Op.gte]: busca.data_inicial } }
+							: "",
+					],
+					status_laudo_id: { [Op.not]: 3 }
+				},
+				include: [
+					{
+						model: Veiculo,
+						include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+						attributes: { exclude: ["createdAt", "updatedAt"] },
+					},
+					]
+			}).then(o => o.length)
+
+
+
+			return res.status(200).json({ falha: false, dados: { laudos, total } })
 		} catch (error) {
 			console.log(error)
 			return res.status(500).json({ falha: true, erro: error })
