@@ -275,7 +275,7 @@ class LaudoController {
 		try {
 			let dados = JSON.parse(req.body.data)
 
-			let { laudo_id, perito_id } = dados
+			let { laudo_id, perito_auxiliar_id } = dados
 			let img = dados.img
 			let resumo = dados.resumo
 
@@ -291,9 +291,9 @@ class LaudoController {
 				)
 			}
 
-			if(perito_id){
+			if(perito_auxiliar_id){
 				await Laudo.update(
-					{ perito_id },
+					{ perito_auxiliar_id },
 					{
 						where: {
 							id: laudo_id,
