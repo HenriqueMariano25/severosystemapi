@@ -965,14 +965,14 @@ class LaudoController {
 
 				[Op.or]: [
 					{ id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null },
-					{ "$Veiculo.placa$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Veiculo.marca_modelo$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Veiculo.chassi_bin$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Veiculo.chassi_atual$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Cliente.nome_razao_social$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$perito.nome$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$perito_auxiliar.nome$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$digitador.nome$": { [Op.like]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.placa$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.marca_modelo$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.chassi_bin$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.chassi_atual$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Cliente.nome_razao_social$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$perito.nome$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$perito_auxiliar.nome$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$digitador.nome$": { [Op.iLike]: "%" + busca.texto + "%" } },
 				],
 				[Op.and]: [
 					busca.data_final != null && busca.data_final != ""
@@ -1039,14 +1039,14 @@ class LaudoController {
 
 				[Op.or]: [
 					{ id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null },
-					{ "$Veiculo.placa$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Veiculo.marca_modelo$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Veiculo.chassi_bin$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Veiculo.chassi_atual$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$Cliente.nome_razao_social$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$perito.nome$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$perito_auxiliar.nome$": { [Op.like]: "%" + busca.texto + "%" } },
-					{ "$digitador.nome$": { [Op.like]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.placa$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.marca_modelo$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.chassi_bin$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Veiculo.chassi_atual$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$Cliente.nome_razao_social$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$perito.nome$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$perito_auxiliar.nome$": { [Op.iLike]: "%" + busca.texto + "%" } },
+					{ "$digitador.nome$": { [Op.iLike]: "%" + busca.texto + "%" } },
 				],
 				[Op.and]: [
 					busca.data_final != null && busca.data_final != ""
