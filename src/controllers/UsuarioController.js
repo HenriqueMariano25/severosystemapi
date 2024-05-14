@@ -181,19 +181,27 @@ class UsuarioController {
   }
 
   async buscarPeritos(req, res) {
-    let peritos = await Usuario.findAll({ order: ["nome"], where: { perito: true } })
+    let peritos = await Usuario.findAll({ order: ["nome"], where: { perito: true, statu_usuario_id: 1 } })
 
     let peritosAuxiliar = await Usuario.findAll({
       order: ["nome"],
-      where: { perito_auxiliar: true },
+      where: { perito_auxiliar: true, statu_usuario_id: 1 },
     })
 
     let digitadores = await Usuario.findAll({
       order: ["nome"],
-      where: Sequelize.where(
-        Sequelize.fn("lower", Sequelize.col("cargo")),
-        Sequelize.fn("lower", "digitador")
-      ),
+      where: {
+        [Op.or]: [
+          {
+            cargo: {
+              [Op.iLike]:
+                "digitador"
+            }
+          },
+          { tipo_usuario_id: 3}
+        ],
+        statu_usuario_id: 1
+      }
     })
 
     return res.status(200).json({
