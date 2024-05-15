@@ -28,9 +28,9 @@ const sharpify = async (originalFile) => {
 		const meta = await image.metadata()
 		const { format } = meta
 		const config = {
-			jpeg: { quality: 80 },
-			webp: { quality: 80 },
-			png: { quality: 80 },
+			jpeg: { quality: 90 },
+			webp: { quality: 90 },
+			png: { quality: 90 },
 		}
 		return await image[format](config[format])
 		// .resize({width: 1000, withoutEnlargement: true})
@@ -275,7 +275,7 @@ class LaudoController {
 		try {
 			let dados = JSON.parse(req.body.data)
 
-			let { laudo_id, perito_auxiliar_id } = dados
+			let { laudo_id, perito_auxiliar_id, perito_id } = dados
 			let img = dados.img
 			let resumo = dados.resumo
 
@@ -294,6 +294,17 @@ class LaudoController {
 			if(perito_auxiliar_id){
 				await Laudo.update(
 					{ perito_auxiliar_id },
+					{
+						where: {
+							id: laudo_id,
+						},
+					},
+				)
+			}
+
+			if (perito_id) {
+				await Laudo.update(
+					{ perito_id },
 					{
 						where: {
 							id: laudo_id,
@@ -1142,7 +1153,7 @@ class LaudoController {
 					},
 					{
 						model: Usuario,
-						as: "perito",
+						as: "perito_auxiliar",
 						attributes: ["nome"],
 					},
 					{
