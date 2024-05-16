@@ -39,7 +39,7 @@ class UsuarioController {
     })
 
     if (tipo_usuario_id === 5) {
-      await ClienteUsuario.create({ cliente_id: cliente.id, usuario_id: usuario.id })
+      await ClienteUsuario.create({ cliente_id: cliente, usuario_id: usuario.id })
     }
 
     return res.status(200).json({ usuario })
@@ -88,7 +88,8 @@ class UsuarioController {
       }else{
         await ClienteUsuario.destroy({ where: { id: clienteEncontrado.id }})
       }
-
+    }else{
+      await ClienteUsuario.create({ cliente_id: cliente.id, usuario_id: id })
     }
 
     return res.status(200).json({ usuario: usuarioEncontrado })
@@ -320,7 +321,6 @@ class UsuarioController {
   async resetarSenha(req, res) {
     let { usuario_id } = req.body
 
-    console.log(usuario_id);
     try {
       let usuario = await Usuario.findOne({ where: { id: usuario_id } })
       usuario.senha = "123456789"
