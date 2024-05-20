@@ -291,7 +291,7 @@ class LaudoController {
 				)
 			}
 
-			if(perito_auxiliar_id){
+			if (perito_auxiliar_id) {
 				await Laudo.update(
 					{ perito_auxiliar_id },
 					{
@@ -689,11 +689,9 @@ class LaudoController {
 				digitador: digitador_id,
 			} = resumo
 
-			let { id: cliente_id } = cliente
-
 			await Laudo.update(
 				{
-					cliente_id,
+					cliente_id: cliente,
 					prop_nome,
 					prop_cpf_cnpj,
 					prop_cnh,
@@ -1142,7 +1140,7 @@ class LaudoController {
 							? { createdAt: { [Op.gte]: busca.data_inicial } }
 							: "",
 					],
-					status_laudo_id: { [Op.not]: 3}
+					status_laudo_id: { [Op.not]: 3 },
 				},
 				include: [
 					{
@@ -1158,10 +1156,10 @@ class LaudoController {
 					},
 					{
 						model: ImagemLaudo,
-						attributes: ["url", 'peca_veiculo'],
-						where: { [Op.or]: [{peca_veiculo: "traseira"}, { peca_veiculo: "dianteira" }]},
+						attributes: ["url", "peca_veiculo"],
+						where: { [Op.or]: [{ peca_veiculo: "traseira" }, { peca_veiculo: "dianteira" }] },
 						required: false,
-						order: [['peca_veiculo', 'DESC']]
+						order: [["peca_veiculo", "DESC"]],
 					},
 				],
 				limit: 50,
@@ -1182,16 +1180,16 @@ class LaudoController {
 					[Op.and]: [
 						busca.data_final != null && busca.data_final != ""
 							? {
-								createdAt: {
-									[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
-								},
-							}
+									createdAt: {
+										[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
+									},
+							  }
 							: "",
 						busca.data_inicial != null && busca.data_inicial != ""
 							? { createdAt: { [Op.gte]: busca.data_inicial } }
 							: "",
 					],
-					status_laudo_id: { [Op.not]: 3 }
+					status_laudo_id: { [Op.not]: 3 },
 				},
 				include: [
 					{
@@ -1199,10 +1197,8 @@ class LaudoController {
 						include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
 						attributes: { exclude: ["createdAt", "updatedAt"] },
 					},
-					]
-			}).then(o => o.length)
-
-
+				],
+			}).then((o) => o.length)
 
 			return res.status(200).json({ falha: false, dados: { laudos, total } })
 		} catch (error) {
