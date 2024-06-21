@@ -12,6 +12,7 @@ const {
 	TipoServico,
 	CaixaLancamento,
 	RascunhoLaudo,
+	PecaVeiculo
 } = require("../models")
 const dayjs = require("dayjs")
 const path = require("path")
@@ -916,7 +917,11 @@ class LaudoController {
 				{ model: RascunhoLaudo, attributes: { exclude: ["createdAt", "updatedAt", "deletedAt"] } },
 				{
 					model: Veiculo,
-					include: { model: TipoVeiculo, attributes: ["descricao"] },
+					include: {
+						model: TipoVeiculo,
+						attributes: ["descricao"],
+						include: [{ model: PecaVeiculo, as: "PecaVeiculo", attributes: ["descricao", "id", "tela_inicial"] }],
+					},
 				},
 				{
 					model: TipoServico,
@@ -1120,7 +1125,6 @@ class LaudoController {
 			const laudos = await Laudo.findAll({
 				subQuery: false,
 				where: {
-					tipo_servico_id: { [Op.not]: [3] },
 					[Op.or]: [
 						{ id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null },
 						{ "$Veiculo.placa$": { [Op.like]: "%" + busca.texto + "%" } },
@@ -1141,12 +1145,13 @@ class LaudoController {
 							: "",
 					],
 					status_laudo_id: { [Op.not]: 3 },
+					processado: { [Op.not]: true}
 				},
 				include: [
 					{
 						required: false,
 						model: Veiculo,
-						include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
+						include: [{ model: TipoVeiculo, attributes: ["descricao"], include: [{ model: PecaVeiculo, as: "PecaVeiculo", attributes: ['id', 'descricao']}] }],
 						attributes: { exclude: ["createdAt", "updatedAt"] },
 					},
 					{
@@ -1157,7 +1162,6 @@ class LaudoController {
 					{
 						model: ImagemLaudo,
 						attributes: ["url", "peca_veiculo"],
-						where: { [Op.or]: [{ peca_veiculo: "traseira" }, { peca_veiculo: "dianteira" }] },
 						required: false,
 						order: [["peca_veiculo", "DESC"]],
 					},
@@ -1329,6 +1333,20 @@ class LaudoController {
 
 			return res.status(500).json({ mensagem: error })
 		}
+	}
+
+	async processarLaudo(req, res){
+		let { usuario_id, laudo_id } = req.body
+
+		try{
+			await Laudo.update({ processado: true, processado_por_id: usuario_id }, { where: { id: laudo_id }})
+
+		  return res.status(200).json({ falha: false, dados: { laudo_id, mensagem: "Laudo processado com sucesso!" }})
+		}catch(erro){
+		  console.log(erro)
+		  return res.status(400).json({erro: erro})
+		}
+
 	}
 }
 

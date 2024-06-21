@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       prop_email: DataTypes.STRING,
       situacao: DataTypes.STRING,
       observacao: DataTypes.STRING,
+      processado: DataTypes.BOOLEAN
     },
     {
       freezeTableName: true,
@@ -50,6 +51,10 @@ module.exports = (sequelize, DataTypes) => {
     })
     Laudo.hasMany(models.RascunhoLaudo, {
       foreignKey: "laudo_id",
+    })
+    Laudo.belongsTo(models.Usuario, {
+      foreignKey: "processado_por_id",
+      as: "ProcessadoPor"
     })
   }
 

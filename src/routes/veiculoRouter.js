@@ -13,4 +13,12 @@ routes.get("/veiculo/tipos_veiculo", VeiculoController.buscarTipoVeiculo)
 
 routes.get("/veiculo/:id", VeiculoController.buscar)
 
+//TIPO VEICULO
+
+routes.post("/veiculo/tipo_veiculo/cadastrar", VeiculoController.cadastrarTipoVeiculo)
+
+routes.put("/veiculo/tipo_veiculo/editar", VeiculoController.editarTipoVeiculo)
+
+routes.get("/veiculo/tipos_veiculo/pecas", VeiculoController.buscarPecasTipoVeiculo)
+
 module.exports = routes

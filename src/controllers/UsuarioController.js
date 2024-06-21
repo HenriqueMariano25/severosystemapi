@@ -79,6 +79,8 @@ class UsuarioController {
       ]
     })
 
+
+
     let clienteEncontrado = await ClienteUsuario.findOne({ where: { usuario_id: id },
       attributes: ['id'] })
 
@@ -89,7 +91,9 @@ class UsuarioController {
         await ClienteUsuario.destroy({ where: { id: clienteEncontrado.id }})
       }
     }else{
-      await ClienteUsuario.create({ cliente_id: cliente.id, usuario_id: id })
+      if(cliente.id !== null){
+        await ClienteUsuario.create({ cliente_id: cliente.id, usuario_id: id })
+      }
     }
 
     return res.status(200).json({ usuario: usuarioEncontrado })

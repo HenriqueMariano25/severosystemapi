@@ -51,5 +51,7 @@ routes.delete("/laudo/:id", LaudoController.deletar)
 
 routes.get("/laudos/busca", LaudoController.buscarEspecifico)
 
+routes.post("/laudo/perito/processar", LaudoController.processarLaudo)
+
 
 module.exports = routes

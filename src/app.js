@@ -26,6 +26,10 @@ class AppController {
       express.static(path.resolve(__dirname, "..", "tmp", "uploads"))
     )
     this.express.use("/files", express.static(path.resolve(__dirname, "..", "images")))
+    // this.express.use('/', (req, res, next)=> {
+    //   console.log(req.url)
+    //   next()
+    // })
   }
 
   routes() {

@@ -210,6 +210,7 @@ class LeilaoController {
 
 	async cadastrarLaudoLeilao(req, res) {
 		let {
+			tipo_veiculo_id,
 			placa,
 			ano,
 			cidade,
@@ -243,7 +244,7 @@ class LeilaoController {
 				combustivel,
 				cambio_bin,
 				cambio_atual,
-				tipo_veiculo_id: 4,
+				tipo_veiculo_id,
 			})
 			veiculo_id = veiculoCriado.id
 
