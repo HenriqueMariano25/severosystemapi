@@ -12,7 +12,7 @@ const {
 	TipoServico,
 	CaixaLancamento,
 	RascunhoLaudo,
-	PecaVeiculo
+	PecaVeiculo,
 } = require("../models")
 const dayjs = require("dayjs")
 const path = require("path")
@@ -841,7 +841,7 @@ class LaudoController {
 									createdAt: {
 										[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
 									},
-							  }
+								}
 							: "",
 						busca.data_inicial != null && busca.data_inicial != ""
 							? { createdAt: { [Op.gte]: busca.data_inicial } }
@@ -920,7 +920,13 @@ class LaudoController {
 					include: {
 						model: TipoVeiculo,
 						attributes: ["descricao"],
-						include: [{ model: PecaVeiculo, as: "PecaVeiculo", attributes: ["descricao", "id", "tela_inicial"] }],
+						include: [
+							{
+								model: PecaVeiculo,
+								as: "PecaVeiculo",
+								attributes: ["descricao", "id", "tela_inicial"],
+							},
+						],
 					},
 				},
 				{
@@ -992,7 +998,7 @@ class LaudoController {
 					busca.data_final != null && busca.data_final != ""
 						? {
 								createdAt: { [Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD") },
-						  }
+							}
 						: "",
 					busca.data_inicial != null && busca.data_inicial != ""
 						? { createdAt: { [Op.gte]: busca.data_inicial } }
@@ -1066,7 +1072,7 @@ class LaudoController {
 					busca.data_final != null && busca.data_final != ""
 						? {
 								createdAt: { [Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD") },
-						  }
+							}
 						: "",
 					busca.data_inicial != null && busca.data_inicial != ""
 						? { createdAt: { [Op.gte]: busca.data_inicial } }
@@ -1138,24 +1144,34 @@ class LaudoController {
 									createdAt: {
 										[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
 									},
-							  }
+								}
 							: "",
 						busca.data_inicial != null && busca.data_inicial != ""
 							? { createdAt: { [Op.gte]: busca.data_inicial } }
 							: "",
 					],
 					status_laudo_id: { [Op.not]: 3 },
-					processado: { [Op.not]: true}
+					processado: { [Op.not]: true },
 				},
 				include: [
 					{
 						required: false,
 						model: Veiculo,
-						include: [{ model: TipoVeiculo, attributes: ["descricao"], include: [{ model: PecaVeiculo, as: "PecaVeiculo", attributes: ['id', 'descricao']}] }],
+						include: [
+							{
+								model: TipoVeiculo,
+								attributes: ["descricao"],
+								required: false,
+								include: [
+									{ model: PecaVeiculo, as: "PecaVeiculo", attributes: ["id", "descricao"], required: false,},
+								],
+							},
+						],
 						attributes: { exclude: ["createdAt", "updatedAt"] },
 					},
 					{
 						model: Usuario,
+						required: false,
 						as: "perito_auxiliar",
 						attributes: ["nome"],
 					},
@@ -1171,9 +1187,10 @@ class LaudoController {
 				order: [["id", "DESC"]],
 			})
 
+			console.log(laudos)
+
 			const total = await Laudo.findAll({
 				where: {
-					tipo_servico_id: { [Op.not]: [3] },
 					[Op.or]: [
 						{ id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null },
 						{ "$Veiculo.placa$": { [Op.like]: "%" + busca.texto + "%" } },
@@ -1187,13 +1204,14 @@ class LaudoController {
 									createdAt: {
 										[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
 									},
-							  }
+								}
 							: "",
 						busca.data_inicial != null && busca.data_inicial != ""
 							? { createdAt: { [Op.gte]: busca.data_inicial } }
 							: "",
 					],
 					status_laudo_id: { [Op.not]: 3 },
+					processado: { [Op.not]: true },
 				},
 				include: [
 					{
@@ -1288,7 +1306,7 @@ class LaudoController {
 											createdAt: {
 												[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
 											},
-									  }
+										}
 									: "",
 							],
 						},
@@ -1335,18 +1353,22 @@ class LaudoController {
 		}
 	}
 
-	async processarLaudo(req, res){
+	async processarLaudo(req, res) {
 		let { usuario_id, laudo_id } = req.body
 
-		try{
-			await Laudo.update({ processado: true, processado_por_id: usuario_id }, { where: { id: laudo_id }})
+		try {
+			await Laudo.update(
+				{ processado: true, processado_por_id: usuario_id },
+				{ where: { id: laudo_id } },
+			)
 
-		  return res.status(200).json({ falha: false, dados: { laudo_id, mensagem: "Laudo processado com sucesso!" }})
-		}catch(erro){
-		  console.log(erro)
-		  return res.status(400).json({erro: erro})
+			return res
+				.status(200)
+				.json({ falha: false, dados: { laudo_id, mensagem: "Laudo processado com sucesso!" } })
+		} catch (erro) {
+			console.log(erro)
+			return res.status(400).json({ erro: erro })
 		}
-
 	}
 }
 
