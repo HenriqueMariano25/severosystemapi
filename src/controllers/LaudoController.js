@@ -1163,7 +1163,7 @@ class LaudoController {
 								attributes: ["descricao"],
 								required: false,
 								include: [
-									{ model: PecaVeiculo, as: "PecaVeiculo", attributes: ["id", "descricao"], required: false,},
+									// { model: PecaVeiculo, as: "PecaVeiculo", attributes: ["id", "descricao"]},
 								],
 							},
 						],
@@ -1186,8 +1186,6 @@ class LaudoController {
 				offset: (pagina - 1) * 50,
 				order: [["id", "DESC"]],
 			})
-
-			console.log(laudos)
 
 			const total = await Laudo.findAll({
 				where: {
