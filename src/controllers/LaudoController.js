@@ -1182,43 +1182,9 @@ class LaudoController {
 						order: [["peca_veiculo", "DESC"]],
 					},
 				],
-				limit: 50,
-				offset: (pagina - 1) * 50,
 				order: [["id", "DESC"]],
 			})
-
-			const total = await Laudo.findAll({
-				where: {
-					[Op.or]: [
-						{ id: busca.texto.match(/\d+/g) != null ? busca.texto.match(/\d+/g)[0] : null },
-						{ "$Veiculo.placa$": { [Op.like]: "%" + busca.texto + "%" } },
-						{ "$Veiculo.marca_modelo$": { [Op.like]: "%" + busca.texto + "%" } },
-						{ "$Veiculo.chassi_bin$": { [Op.like]: "%" + busca.texto + "%" } },
-						{ "$Veiculo.chassi_atual$": { [Op.like]: "%" + busca.texto + "%" } },
-					],
-					[Op.and]: [
-						busca.data_final != null && busca.data_final != ""
-							? {
-									createdAt: {
-										[Op.lte]: dayjs(busca.data_final).add(1, "day").format("YYYY-MM-DD"),
-									},
-								}
-							: "",
-						busca.data_inicial != null && busca.data_inicial != ""
-							? { createdAt: { [Op.gte]: busca.data_inicial } }
-							: "",
-					],
-					status_laudo_id: { [Op.not]: 3 },
-					processado: { [Op.not]: true },
-				},
-				include: [
-					{
-						model: Veiculo,
-						include: [{ model: TipoVeiculo, attributes: ["descricao"] }],
-						attributes: { exclude: ["createdAt", "updatedAt"] },
-					},
-				],
-			}).then((o) => o.length)
+			const total = laudos.length
 
 			return res.status(200).json({ falha: false, dados: { laudos, total } })
 		} catch (error) {
@@ -1353,6 +1319,9 @@ class LaudoController {
 
 	async processarLaudo(req, res) {
 		let { usuario_id, laudo_id } = req.body
+
+
+		console.log("Processando o laudo ", laudo_id)
 
 		try {
 			await Laudo.update(
