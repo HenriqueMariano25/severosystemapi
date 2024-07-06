@@ -1151,6 +1151,7 @@ class LaudoController {
 							: "",
 					],
 					status_laudo_id: { [Op.not]: 3 },
+					situacao: {[Op.or]: ['', null]},
 					processado: { [Op.not]: true },
 				},
 				include: [
