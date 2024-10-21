@@ -13,6 +13,7 @@ const {
 	CaixaLancamento,
 	RascunhoLaudo,
 	PecaVeiculo,
+	sequelize, CaixaFormaLanc
 } = require("../models")
 const dayjs = require("dayjs")
 const path = require("path")
@@ -78,7 +79,7 @@ async function adicionaRemoveQuestoes(laudo_id, questoes) {
 
 class LaudoController {
 	async cadastrarLaudo(req, res) {
-		let { tipo_servico_id } = req.body
+		let { tipo_servico_id, lancamentoCaixa } = req.body
 
 		let {
 			placa,
@@ -112,6 +113,8 @@ class LaudoController {
 
 		let { id: cliente_id } = req.body.cliente
 
+		const transacao = await sequelize.transaction()
+
 		try {
 			let { id: veiculo_id } = await Veiculo.create({
 				placa,
@@ -134,7 +137,7 @@ class LaudoController {
 				tipo_lacre,
 				lacre,
 				tipo_veiculo_id: req.body.veiculo.tipo_veiculo_id,
-			})
+			}, { transaction: transacao})
 
 			let laudoCriado = await Laudo.create({
 				cliente_id,
@@ -146,7 +149,25 @@ class LaudoController {
 				veiculo_id,
 				status_laudo_id: 1,
 				tipo_servico_id,
-			})
+			}, { transaction: transacao})
+
+
+			if(lancamentoCaixa.lancamento){
+				lancamentoCaixa.lancamento.descricao = lancamentoCaixa.lancamento.descricao.replace('*000000000*', ("000000000" + laudoCriado.id).slice(-9))
+				lancamentoCaixa.lancamento.laudo_id = laudoCriado.id
+
+				const dados = await CaixaLancamento.create(lancamentoCaixa.lancamento, { transaction: transacao})
+
+				if (lancamentoCaixa?.pagamento.length) {
+					for (let pag of lancamentoCaixa.pagamento) {
+						pag.lancamento_id = dados.id
+
+						await CaixaFormaLanc.create(pag, { transaction: transacao})
+					}
+				}
+			}
+
+			await transacao.commit()
 
 			let laudoBuscado = await Laudo.findOne({
 				where: { id: laudoCriado.id },
@@ -156,6 +177,7 @@ class LaudoController {
 
 			return res.status(200).json({ falha: false, dados: { laudo: laudoBuscado } })
 		} catch (error) {
+			await transacao.rollback()
 			console.log(error)
 			return res.status(500).json({ falha: true, erro: error })
 		}
@@ -1320,9 +1342,6 @@ class LaudoController {
 
 	async processarLaudo(req, res) {
 		let { usuario_id, laudo_id } = req.body
-
-
-		console.log("Processando o laudo ", laudo_id)
 
 		try {
 			await Laudo.update(
