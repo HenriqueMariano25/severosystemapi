@@ -9,7 +9,7 @@ let {
 	TipoServico,
 	Questao,
 	Gravidade,
-	ImagemLaudo,
+	ImagemLaudo, sequelize, CaixaLancamento, CaixaFormaLanc,
 } = require("../models")
 const { Op } = require("sequelize")
 
@@ -209,6 +209,8 @@ class LeilaoController {
 	}
 
 	async cadastrarLaudoLeilao(req, res) {
+		let { lancamentoCaixa } = req.body
+
 		let {
 			tipo_veiculo_id,
 			placa,
@@ -229,6 +231,10 @@ class LeilaoController {
 		try {
 			let veiculo_id
 
+			let { id: cliente_id } = req.body.cliente
+
+			const transacao = await sequelize.transaction()
+
 			let veiculoCriado = await Veiculo.create({
 				placa,
 				ano,
@@ -245,17 +251,33 @@ class LeilaoController {
 				cambio_bin,
 				cambio_atual,
 				tipo_veiculo_id,
-			})
-			veiculo_id = veiculoCriado.id
+			}, { transaction: transacao})
 
-			let { id: cliente_id } = req.body.cliente
+			veiculo_id = veiculoCriado.id
 
 			let laudoCriado = await Laudo.create({
 				cliente_id,
 				veiculo_id,
 				tipo_servico_id: 3,
 				status_laudo_id: 1,
-			})
+			}, { transaction: transacao})
+
+			if(lancamentoCaixa.lancamento){
+				lancamentoCaixa.lancamento.descricao = lancamentoCaixa.lancamento.descricao.replace('*000000000*', ("000000000" + laudoCriado.id).slice(-9))
+				lancamentoCaixa.lancamento.laudo_id = laudoCriado.id
+
+				const dados = await CaixaLancamento.create(lancamentoCaixa.lancamento, { transaction: transacao})
+
+				if (lancamentoCaixa?.pagamento.length) {
+					for (let pag of lancamentoCaixa.pagamento) {
+						pag.lancamento_id = dados.id
+
+						await CaixaFormaLanc.create(pag, { transaction: transacao})
+					}
+				}
+			}
+
+			await transacao.commit()
 
 			let laudo = await Laudo.findOne({
 				where: { id: laudoCriado.id },
