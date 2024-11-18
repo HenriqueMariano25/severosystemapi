@@ -14,4 +14,6 @@ routes.post("/leilao/laudo", LeilaoController.cadastrarLaudoLeilao)
 
 routes.put("/leilao/laudo/:id", LeilaoController.editarLaudoLeilao)
 
+routes.get("/leilao/buscar_tipo_servico", LeilaoController.buscarTipoServicoLeilao)
+
 module.exports = routes

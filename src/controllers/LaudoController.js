@@ -732,6 +732,15 @@ class LaudoController {
 
 			await adicionaRemoveQuestoes(laudo_id, questoes)
 
+			const lancamentosCaixa = await CaixaLancamento.findAll({ where: { laudo_id } })
+			if(lancamentosCaixa.length > 0){
+				for(const lanc of lancamentosCaixa){
+					const descricaco = lanc.descricao
+				}
+
+			}
+			console.log(lancamentosCaixa)
+
 			return res.status(200).json({ falha: false, dados: {} })
 		} catch (error) {
 			console.log(error)

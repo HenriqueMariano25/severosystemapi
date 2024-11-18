@@ -398,6 +398,17 @@ class LeilaoController {
 			return res.status(400).json({ mensagem: "Erro ao editar laudo" })
 		}
 	}
+
+	async buscarTipoServicoLeilao(req, res){
+		try{
+			const tipoServico = await TipoServico.findOne( { where: { id: 3 }})
+
+		  return res.status(200).json({ falha: false, dados: { tipoServico }})
+		}catch(erro){
+		  console.log(erro)
+		  return res.status(400).json({erro: erro})
+		}
+	}
 }
 
 module.exports = new LeilaoController()
