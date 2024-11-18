@@ -392,6 +392,15 @@ class LeilaoController {
 			).then((result) => {
 				laudo = result[1]
 			})
+
+			const lancamentosCaixa = await CaixaLancamento.findAll({ where: { laudo_id } })
+			if(lancamentosCaixa.length > 0){
+				for(const lanc of lancamentosCaixa){
+					const novaDescricao = lanc.descricao.replace(/(Placa: )(.+?)( Cliente)/, `$1${placa}$3`);
+					await CaixaLancamento.update({ descricao: novaDescricao }, { where: { id: lanc.id }})
+				}
+			}
+
 			return await res.status(200).json({ laudo: laudo })
 		} catch (e) {
 			console.log(e)

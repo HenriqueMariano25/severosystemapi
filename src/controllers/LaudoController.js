@@ -735,11 +735,10 @@ class LaudoController {
 			const lancamentosCaixa = await CaixaLancamento.findAll({ where: { laudo_id } })
 			if(lancamentosCaixa.length > 0){
 				for(const lanc of lancamentosCaixa){
-					const descricaco = lanc.descricao
+					const novaDescricao = lanc.descricao.replace(/(Placa: )(.+?)( Cliente)/, `$1${placa}$3`);
+					await CaixaLancamento.update({ descricao: novaDescricao }, { where: { id: lanc.id }})
 				}
-
 			}
-			console.log(lancamentosCaixa)
 
 			return res.status(200).json({ falha: false, dados: {} })
 		} catch (error) {
