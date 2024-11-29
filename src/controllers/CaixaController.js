@@ -384,6 +384,15 @@ class CaixaController {
 								attributes: ["descricao", "id"],
 							},
 							{
+								model: Laudo,
+								as: "laudo",
+								attributes: ['id'],
+								include: [{
+									model: TipoServico,
+									attributes: ['descricao']
+								}]
+							},
+							{
 								model: CaixaFormaLanc,
 								as: "pagamento",
 								attributes: ["forma_id"],
