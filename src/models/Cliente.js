@@ -14,6 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       cep: DataTypes.STRING,
       complemento: DataTypes.STRING,
       telefone: DataTypes.STRING,
+      tipo_cliente: DataTypes.STRING,
+      valor_desconto: DataTypes.STRING ,
     },
     {
       freezeTableName: true,
