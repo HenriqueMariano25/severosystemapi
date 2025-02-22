@@ -15,4 +15,6 @@ routes.get("/cliente/:id", ClienteController.buscar)
 
 routes.get('/clientes/buscar', ClienteController.buscarNovoPadrao)
 
+routes.get("/clientes/simplificado", ClienteController.buscarSimplificado)
+
 module.exports = routes

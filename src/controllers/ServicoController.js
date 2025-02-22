@@ -50,7 +50,15 @@ class ServicoController {
 	}
 
 	async buscarTiposServico(req, res) {
-		let tiposServico = await TipoServico.findAll({ order: ["descricao"] })
+		const { entrada_saida } = req.query
+
+		let filtro = {}
+		if (entrada_saida) {
+			filtro = { where: { entrada_saida } }
+		}
+
+
+		let tiposServico = await TipoServico.findAll({ ...filtro, order: ["descricao"] })
 
 		return res.status(200).json({ tiposServico: tiposServico })
 	}

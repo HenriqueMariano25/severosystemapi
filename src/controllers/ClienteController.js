@@ -134,6 +134,21 @@ class ClienteController {
 			return res.status(500).json({ falha: true, erro: error })
 		}
 	}
+
+	async buscarSimplificado(req, res) {
+		try {
+			const { filtro } = req.query
+			const clientes = await Cliente.findAll({
+				where: { nome_razao_social: { [Op.iLike]: `%${filtro}%` } },
+				order: ["nome_razao_social"],
+				attributes: ["id", "nome_razao_social", "tipo_cliente", "valor_desconto"],
+			})
+
+			return res.status(200).json({ falha: false, dados: { clientes } })
+		} catch (error) {
+			return res.status(500).json({ falha: true, erro: error })
+		}
+	}
 }
 
 module.exports = new ClienteController()

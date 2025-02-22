@@ -9,6 +9,7 @@ const {
 	Veiculo,
 	Laudo,
 	TipoServico,
+	Cliente
 } = require("../models")
 const { Op, sequelize, Sequelize } = require("sequelize")
 const dayjs = require("dayjs")
@@ -642,7 +643,10 @@ class CaixaController {
 					{
 						model: CaixaLancamento,
 						as: "lancamentos",
+						order: [["created_at", "ASC"]],
 						include: [
+							{ model: TipoServico, as:"tipoServico", attributes: ['id', 'descricao', 'valor'] },
+							{ model: Cliente, as:"cliente" },
 							{ model: CaixaCategoria, as: "categoria" },
 							{
 								model: CaixaFormaLanc,
@@ -712,6 +716,9 @@ class CaixaController {
 								include: [{ model: CaixaFormaTipo, as: "tipo" }],
 							},
 							{
+								model: TipoServico,
+							},
+							{
 								model: Laudo,
 								as: "laudo",
 								attributes: ["id"],
@@ -762,7 +769,7 @@ class CaixaController {
 			}
 
 			if (tipo) {
-				categoriasBuscadas = categoriasBuscadas.filter((o) => o.tipo === tipo)
+				categoriasBuscadas = categoriasBuscadas.filter((o) => o.ftipo === tipo)
 			}
 
 			return res.status(200).json({ falha: false, dados: { categorias: categoriasBuscadas } })
@@ -883,6 +890,8 @@ class CaixaController {
 				where: { id: dados.id },
 				include: [
 					{ model: CaixaCategoria, as: "categoria" },
+					{ model: TipoServico, as: "tipoServico", attributes: ['id', 'descricao', 'valor'] },
+					{ model: Cliente, as: "cliente" },
 					{
 						model: CaixaFormaLanc,
 						as: "pagamento",
@@ -914,6 +923,8 @@ class CaixaController {
 				where: { id: req.params.id },
 				include: [
 					{ model: CaixaCategoria, as: "categoria" },
+					{ model: TipoServico, as: "tipoServico", attributes: ['id', 'descricao', 'valor']},
+					{ model: Cliente, as: "cliente", attributes: ['id', 'nome_razao_social']},
 					{
 						model: CaixaFormaLanc,
 						as: "pagamento",

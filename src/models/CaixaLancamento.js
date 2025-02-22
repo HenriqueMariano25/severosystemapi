@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
         {
             descricao: DataTypes.STRING,
             valor: DataTypes.FLOAT,
-
+            valor_servico: DataTypes.FLOAT,
+            valor_desconto: DataTypes.FLOAT,
         },
         {
             freezeTableName: true,
@@ -31,6 +32,12 @@ module.exports = (sequelize, DataTypes) => {
 
         CaixaLancamento.belongsTo(models.Laudo, {
             foreignKey: 'laudo_id', as: 'laudo'
+        })
+        CaixaLancamento.belongsTo(models.Cliente, {
+            foreignKey: 'cliente_id', as: 'cliente'
+        })
+        CaixaLancamento.belongsTo(models.TipoServico, {
+            foreignKey: 'tipo_servico_id', as: 'tipoServico'
         })
     }
     return CaixaLancamento
