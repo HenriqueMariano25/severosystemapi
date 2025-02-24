@@ -9,7 +9,7 @@ const {
 	Veiculo,
 	Laudo,
 	TipoServico,
-	Cliente
+	Cliente,
 } = require("../models")
 const { Op, sequelize, Sequelize } = require("sequelize")
 const dayjs = require("dayjs")
@@ -29,7 +29,7 @@ async function existeCaixaAberto(payload) {
 
 async function vincularLancamentoAoLaudo(lancamento) {
 	const regex = /Laudo: (.*?) Tipo/i
-	const idLaudo = lancamento.descricao.match(regex)
+	const idLaudo = lancamento?.descricao?.match(regex)
 	if (idLaudo) {
 		const idLaudoFormatado = idLaudo[1].replace(/^0+/, "")
 		let laudoEncontrado = await Laudo.findOne({
@@ -167,6 +167,8 @@ class CaixaController {
 						],
 						attributes: ["id"],
 					},
+					{ model: TipoServico, as: "tipoServico" },
+					{ model: Cliente, as: "cliente" },
 					{
 						model: CaixaDia,
 						as: "caixa",
@@ -246,6 +248,8 @@ class CaixaController {
 						as: "caixa",
 						include: [{ model: Usuario, attributes: ["nome"] }],
 					},
+					{ model: TipoServico, as: "tipoServico" },
+					{ model: Cliente, as: "cliente" },
 					{ model: CaixaCategoria, as: "categoria", attributes: ["descricao"] },
 					{
 						model: CaixaFormaLanc,
@@ -269,10 +273,10 @@ class CaixaController {
 			let novosDados = [...dados]
 
 			for (let dado of novosDados) {
-				let placa = dado.descricao.match(regex)
-				let tipoLaudo = dado.descricao.match(regexTipoLaudo)
+				let placa = dado.descricao?.match(regex)
+				let tipoLaudo = dado.descricao?.match(regexTipoLaudo)
 
-				if (placa !== null) {
+				if (placa) {
 					let veiculo = await Veiculo.findOne({
 						where: { placa: placa[1] },
 						attributes: ["id", "marca_modelo"],
@@ -284,7 +288,7 @@ class CaixaController {
 					}
 				}
 
-				if (tipoLaudo !== null) {
+				if (tipoLaudo) {
 					dado.dataValues["tipoLaudo"] = tipoLaudo[1]
 				}
 			}
@@ -335,6 +339,8 @@ class CaixaController {
 						],
 						attributes: ["id"],
 					},
+					{ model: TipoServico, as: "tipoServico" },
+					{ model: Cliente, as: "cliente" },
 					{
 						model: CaixaDia,
 						as: "caixa",
@@ -383,6 +389,14 @@ class CaixaController {
 								model: CaixaCategoria,
 								as: "categoria",
 								attributes: ["descricao", "id"],
+							},
+							{
+								model: TipoServico,
+								as: "tipoServico",
+							},
+							{
+								model: Cliente,
+								as: "cliente",
 							},
 							{
 								model: Laudo,
@@ -645,8 +659,8 @@ class CaixaController {
 						as: "lancamentos",
 						order: [["created_at", "ASC"]],
 						include: [
-							{ model: TipoServico, as:"tipoServico", attributes: ['id', 'descricao', 'valor'] },
-							{ model: Cliente, as:"cliente" },
+							{ model: TipoServico, as: "tipoServico", attributes: ["id", "descricao", "valor"] },
+							{ model: Cliente, as: "cliente" },
 							{ model: CaixaCategoria, as: "categoria" },
 							{
 								model: CaixaFormaLanc,
@@ -717,6 +731,11 @@ class CaixaController {
 							},
 							{
 								model: TipoServico,
+								as: "tipoServico",
+							},
+							{
+								model: Cliente,
+								as: "cliente",
 							},
 							{
 								model: Laudo,
@@ -890,7 +909,7 @@ class CaixaController {
 				where: { id: dados.id },
 				include: [
 					{ model: CaixaCategoria, as: "categoria" },
-					{ model: TipoServico, as: "tipoServico", attributes: ['id', 'descricao', 'valor'] },
+					{ model: TipoServico, as: "tipoServico", attributes: ["id", "descricao", "valor"] },
 					{ model: Cliente, as: "cliente" },
 					{
 						model: CaixaFormaLanc,
@@ -923,8 +942,8 @@ class CaixaController {
 				where: { id: req.params.id },
 				include: [
 					{ model: CaixaCategoria, as: "categoria" },
-					{ model: TipoServico, as: "tipoServico", attributes: ['id', 'descricao', 'valor']},
-					{ model: Cliente, as: "cliente", attributes: ['id', 'nome_razao_social']},
+					{ model: TipoServico, as: "tipoServico", attributes: ["id", "descricao", "valor"] },
+					{ model: Cliente, as: "cliente", attributes: ["id", "nome_razao_social"] },
 					{
 						model: CaixaFormaLanc,
 						as: "pagamento",
