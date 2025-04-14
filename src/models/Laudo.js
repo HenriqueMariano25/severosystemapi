@@ -9,7 +9,9 @@ module.exports = (sequelize, DataTypes) => {
       prop_email: DataTypes.STRING,
       situacao: DataTypes.STRING,
       observacao: DataTypes.STRING,
-      processado: DataTypes.BOOLEAN
+      processado: DataTypes.BOOLEAN,
+      data_abertura_processamento: DataTypes.STRING,
+      data_fechamento_processamento: DataTypes.STRING,
     },
     {
       freezeTableName: true,

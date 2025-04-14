@@ -16,11 +16,16 @@ const {
 	sequelize, CaixaFormaLanc
 } = require("../models")
 const dayjs = require("dayjs")
+const utc = require("dayjs/plugin/utc")
+const timezone = require("dayjs/plugin/timezone")
 const path = require("path")
 const sharp = require("sharp")
 const aws = require("aws-sdk")
 const fs = require("fs")
 const { Op, Sequelize } = require("sequelize")
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION } = process.env
 
@@ -372,6 +377,12 @@ class LaudoController {
 				url = `${req.protocol}://${req.get("host")}/files/${nomeFormatado}`
 			}
 
+			const laudoEncontrado = await Laudo.findOne({ where: { id: laudo_id }, attributes: ['id', 'data_abertura_processamento'] })
+			if(laudoEncontrado && !laudoEncontrado.data_abertura_processamento){
+				const agora = dayjs().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:mm:ss')
+				await Laudo.update({ data_abertura_processamento: agora }, { where: { id: laudo_id } })
+			}
+
 			let imgCriada = await ImagemLaudo.create({
 				url,
 				nome: nomeFormatado,
@@ -380,7 +391,6 @@ class LaudoController {
 				peca_veiculo_id: 1,
 			})
 			return res.status(200).json({ falha: false, dados: { img: imgCriada } })
-			// return res.status(200).json({ falha: false, dados: {  } })
 		} catch (error) {
 			console.log(error)
 			return res.status(500).json({ falha: true, erro: error })
@@ -1351,9 +1361,11 @@ class LaudoController {
 	async processarLaudo(req, res) {
 		let { usuario_id, laudo_id } = req.body
 
+		const agora = dayjs().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:mm:ss')
+
 		try {
 			await Laudo.update(
-				{ processado: true, processado_por_id: usuario_id },
+				{ processado: true, processado_por_id: usuario_id, data_fechamento_processamento: agora },
 				{ where: { id: laudo_id } },
 			)
 
