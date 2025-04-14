@@ -139,11 +139,16 @@ class CaixaController {
 			const dataInicalFormatada = data_inicial.replace("T", " ")
 			const dataFinalFormatada = data_final.replace("T", " ")
 
+
 			if (parametros.opcaoRelatorio === "faturado")
 				filtro = { "$pagamento.tipo.descricao$": "Faturado" }
 
 			if (parametros.opcaoRelatorio === "quitados")
 				filtro = { "$pagamento.tipo.descricao$": { [Op.not]: "Faturado" } }
+
+			if(parametros.opcaoRelatorio === "todos" && parametros['$pagamento.forma_id$']){
+				filtro = {'$pagamento.forma_id$': parametros['$pagamento.forma_id$'] }
+			}
 
 			if (parametros.busca != null && parametros.busca != "") {
 				filtro = {

@@ -1,3 +1,15 @@
+const { Op, Sequelize } = require("sequelize")
+const operatorsAliases = {
+  $like: Op.like,
+  $iLike: Op.iLike,
+  $in: Op.in,
+  $or: Op.or,
+  $bet: Op.between,
+  $not: Op.not,
+  $lte: Op.lte,
+  $gte: Op.gte,
+}
+
 require('dotenv').config({
   path: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
 })
@@ -15,7 +27,7 @@ module.exports = {
     ssl: ssl,
     useUTC: false,
   },
-  operatorsAliase: false,
+  operatorsAliases,
   logging: false,
   define: {
     timestamps: true,
