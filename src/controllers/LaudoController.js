@@ -1094,7 +1094,7 @@ class LaudoController {
 
 		const laudos = await Laudo.findAndCountAll({
 			where: {
-				tipo_servico_id: { [Op.not]: [3] },
+				// tipo_servico_id: { [Op.not]: [3] },
 				// cliente_id,
 
 				[Op.or]: [
