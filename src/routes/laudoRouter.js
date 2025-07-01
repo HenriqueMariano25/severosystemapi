@@ -53,5 +53,5 @@ routes.get("/laudos/busca", LaudoController.buscarEspecifico)
 
 routes.post("/laudo/perito/processar", LaudoController.processarLaudo)
 
-
+routes.get("/laudo/buscar/placa/:placa", LaudoController.buscarPorPlaca)
 module.exports = routes

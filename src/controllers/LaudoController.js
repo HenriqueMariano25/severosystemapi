@@ -13,7 +13,8 @@ const {
 	CaixaLancamento,
 	RascunhoLaudo,
 	PecaVeiculo,
-	sequelize, CaixaFormaLanc
+	sequelize,
+	CaixaFormaLanc,
 } = require("../models")
 const dayjs = require("dayjs")
 const utc = require("dayjs/plugin/utc")
@@ -24,8 +25,8 @@ const aws = require("aws-sdk")
 const fs = require("fs")
 const { Op, Sequelize } = require("sequelize")
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION } = process.env
 
@@ -121,53 +122,63 @@ class LaudoController {
 		const transacao = await sequelize.transaction()
 
 		try {
-			let { id: veiculo_id } = await Veiculo.create({
-				placa,
-				ano,
-				hodometro,
-				uf,
-				cidade,
-				marca_modelo,
-				chassi_bin,
-				chassi_atual,
-				motor_bin,
-				motor_atual,
-				cor_bin,
-				cor_atual,
-				combustivel,
-				renavam,
-				cambio_bin,
-				cambio_atual,
-				crlv,
-				tipo_lacre,
-				lacre,
-				tipo_veiculo_id: req.body.veiculo.tipo_veiculo_id,
-			}, { transaction: transacao})
+			let { id: veiculo_id } = await Veiculo.create(
+				{
+					placa,
+					ano,
+					hodometro,
+					uf,
+					cidade,
+					marca_modelo,
+					chassi_bin,
+					chassi_atual,
+					motor_bin,
+					motor_atual,
+					cor_bin,
+					cor_atual,
+					combustivel,
+					renavam,
+					cambio_bin,
+					cambio_atual,
+					crlv,
+					tipo_lacre,
+					lacre,
+					tipo_veiculo_id: req.body.veiculo.tipo_veiculo_id,
+				},
+				{ transaction: transacao },
+			)
 
-			let laudoCriado = await Laudo.create({
-				cliente_id,
-				prop_nome,
-				prop_cpf_cnpj,
-				prop_cnh,
-				prop_telefone,
-				prop_email,
-				veiculo_id,
-				status_laudo_id: 1,
-				tipo_servico_id,
-			}, { transaction: transacao})
+			let laudoCriado = await Laudo.create(
+				{
+					cliente_id,
+					prop_nome,
+					prop_cpf_cnpj,
+					prop_cnh,
+					prop_telefone,
+					prop_email,
+					veiculo_id,
+					status_laudo_id: 1,
+					tipo_servico_id,
+				},
+				{ transaction: transacao },
+			)
 
-
-			if(lancamentoCaixa.lancamento){
-				lancamentoCaixa.lancamento.descricao = lancamentoCaixa.lancamento.descricao.replace('*000000000*', ("000000000" + laudoCriado.id).slice(-9))
+			if (lancamentoCaixa.lancamento) {
+				lancamentoCaixa.lancamento.descricao = lancamentoCaixa.lancamento.descricao.replace(
+					"*000000000*",
+					("000000000" + laudoCriado.id).slice(-9),
+				)
 				lancamentoCaixa.lancamento.laudo_id = laudoCriado.id
 
-				const dados = await CaixaLancamento.create(lancamentoCaixa.lancamento, { transaction: transacao})
+				const dados = await CaixaLancamento.create(lancamentoCaixa.lancamento, {
+					transaction: transacao,
+				})
 
 				if (lancamentoCaixa?.pagamento.length) {
 					for (let pag of lancamentoCaixa.pagamento) {
 						pag.lancamento_id = dados.id
 
-						await CaixaFormaLanc.create(pag, { transaction: transacao})
+						await CaixaFormaLanc.create(pag, { transaction: transacao })
 					}
 				}
 			}
@@ -187,6 +198,7 @@ class LaudoController {
 			return res.status(500).json({ falha: true, erro: error })
 		}
 	}
+
 	async cadastrar(req, res) {
 		let { tipo_servico_id } = req.body
 
@@ -377,9 +389,12 @@ class LaudoController {
 				url = `${req.protocol}://${req.get("host")}/files/${nomeFormatado}`
 			}
 
-			const laudoEncontrado = await Laudo.findOne({ where: { id: laudo_id }, attributes: ['id', 'data_abertura_processamento'] })
-			if(laudoEncontrado && !laudoEncontrado.data_abertura_processamento){
-				const agora = dayjs().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:mm:ss')
+			const laudoEncontrado = await Laudo.findOne({
+				where: { id: laudo_id },
+				attributes: ["id", "data_abertura_processamento"],
+			})
+			if (laudoEncontrado && !laudoEncontrado.data_abertura_processamento) {
+				const agora = dayjs().tz("America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss")
 				await Laudo.update({ data_abertura_processamento: agora }, { where: { id: laudo_id } })
 			}
 
@@ -743,10 +758,10 @@ class LaudoController {
 			await adicionaRemoveQuestoes(laudo_id, questoes)
 
 			const lancamentosCaixa = await CaixaLancamento.findAll({ where: { laudo_id } })
-			if(lancamentosCaixa.length > 0){
-				for(const lanc of lancamentosCaixa){
-					const novaDescricao = lanc.descricao.replace(/(Placa: )(.+?)( Cliente)/, `$1${placa}$3`);
-					await CaixaLancamento.update({ descricao: novaDescricao }, { where: { id: lanc.id }})
+			if (lancamentosCaixa.length > 0) {
+				for (const lanc of lancamentosCaixa) {
+					const novaDescricao = lanc.descricao.replace(/(Placa: )(.+?)( Cliente)/, `$1${placa}$3`)
+					await CaixaLancamento.update({ descricao: novaDescricao }, { where: { id: lanc.id } })
 				}
 			}
 
@@ -1191,7 +1206,7 @@ class LaudoController {
 							: "",
 					],
 					status_laudo_id: { [Op.not]: 3 },
-					situacao: {[Op.or]: ['', null]},
+					situacao: { [Op.or]: ["", null] },
 					processado: { [Op.not]: true },
 				},
 				include: [
@@ -1361,7 +1376,7 @@ class LaudoController {
 	async processarLaudo(req, res) {
 		let { usuario_id, laudo_id } = req.body
 
-		const agora = dayjs().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:mm:ss')
+		const agora = dayjs().tz("America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss")
 
 		try {
 			await Laudo.update(
@@ -1372,6 +1387,38 @@ class LaudoController {
 			return res
 				.status(200)
 				.json({ falha: false, dados: { laudo_id, mensagem: "Laudo processado com sucesso!" } })
+		} catch (erro) {
+			console.log(erro)
+			return res.status(400).json({ erro: erro })
+		}
+	}
+
+	async buscarPorPlaca(req, res) {
+		try {
+			const { placa } = req.params
+			const placaLimpa = placa.replace(/[^a-zA-Z0-9]/g, "").toUpperCase()
+
+			const laudos = await Laudo.findAll({
+				where: {
+					[Op.or]: [
+						{ "$Veiculo.placa$": { [Op.iLike]: placa } },
+						{ "$Veiculo.placa$": { [Op.iLike]: placaLimpa } },
+					],
+					deletedAt: null,
+				},
+				include: [
+					{
+						model: Veiculo,
+						required: true,
+					},
+					{
+						model: Cliente,
+					}
+				],
+				attributes: ["id", "Veiculo.placa", "createdAt", "updatedAt"],
+			})
+
+			return res.status(200).json({ falha: false, dados: { laudos } })
 		} catch (erro) {
 			console.log(erro)
 			return res.status(400).json({ erro: erro })
