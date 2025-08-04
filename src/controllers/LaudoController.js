@@ -1408,12 +1408,14 @@ class LaudoController {
 				},
 				include: [
 					{
-						model: Veiculo,
-						required: true,
-					},
-					{
 						model: Cliente,
-					}
+						attributes: { exclude: ["createdAt", "updatedAt"] },
+					},
+					{ model: StatusLaudo, attributes: ["id", "descricao"] },
+					{
+						model: Veiculo,
+					},
+
 				],
 				attributes: ["id", "Veiculo.placa", "createdAt", "updatedAt"],
 			})
