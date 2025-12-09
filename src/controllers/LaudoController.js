@@ -999,6 +999,52 @@ class LaudoController {
 		return res.status(200).json({ laudo: laudo, lancamento: lancamento })
 	}
 
+	async buscarSimplificado(req, res) {
+		try {
+			const { id } = req.params
+
+			const laudo = await Laudo.findOne({
+				include: [
+					{ model: Veiculo, attributes: ["tipo_veiculo_id", "placa"] },
+					{
+						model: TipoServico,
+						attributes: ["id", "descricao"],
+					},
+				],
+				attributes: [
+					"id",
+					"prop_nome",
+					"prop_cpf_cnpj",
+					"prop_cnh",
+					"prop_telefone",
+					"prop_email",
+					"situacao",
+					"observacao",
+					"createdAt",
+					"updatedAt",
+					"cliente_id",
+					"veiculo_id",
+					"status_laudo_id",
+					"perito_id",
+					"perito_auxiliar_id",
+					"digitador_id",
+					"tipo_servico_id",
+				],
+				where: { id },
+			})
+
+			let codigoLaudo = ("000000000" + id).slice(-9)
+			let lancamento = await CaixaLancamento.findOne({
+				where: { descricao: { [Op.substring]: codigoLaudo } },
+			})
+
+			return res.status(200).json({ falha: false, dados: { laudo, lancamento } })
+		} catch (error) {
+			console.log(error)
+			return res.status(500).json({ falha: true, erro: error })
+		}
+	}
+
 	async deletar(req, res) {
 		try {
 			let { id } = req.params
@@ -1415,7 +1461,6 @@ class LaudoController {
 					{
 						model: Veiculo,
 					},
-
 				],
 				attributes: ["id", "Veiculo.placa", "createdAt", "updatedAt"],
 			})
@@ -1424,6 +1469,59 @@ class LaudoController {
 		} catch (erro) {
 			console.log(erro)
 			return res.status(400).json({ erro: erro })
+		}
+	}
+
+	async buscarImagensRascunhoLaudoId(req, res) {
+		const { id } = req.params
+
+		try {
+			const imagens = await ImagemLaudo.findAll({
+				where: { laudo_id: id },
+				attributes: ["peca_veiculo", "url", "id"],
+				order: [["created_at"]],
+			})
+
+			const rascunhos = await RascunhoLaudo.findAll({
+				where: { laudo_id: id },
+				attributes: { exclude: ["createdAt", "updatedAt", "deletedAt"] },
+			})
+
+			return res.status(200).json({ falha: false, dados: { imagens, rascunhos } })
+		} catch (error) {
+			console.log(error)
+			return res.status(500).json({ falha: true, erro: error })
+		}
+	}
+
+	async buscarQuestoesLaudoId(req, res) {
+		const { id } = req.params
+
+		try {
+			const questoes = await LaudoQuestao.findAll({
+				where: { laudo_id: id },
+				include: {
+					model: Questao,
+					include: { model: Gravidade, attributes: ["cor", "icone", "descricao"] },
+				},
+				order: [["created_at"]],
+			})
+
+			return res.status(200).json({ falha: false, dados: { questoes } })
+		} catch (error) {
+			console.log(error)
+			return res.status(500).json({ falha: true, erro: error })
+		}
+	}
+
+	async buscarResumoLaudoId(req, res) {
+		const { id } = req.params
+
+		try {
+			return res.status(200).json({ falha: false, dados: {} })
+		} catch (error) {
+			console.log(error)
+			return res.status(500).json({ falha: true, erro: error })
 		}
 	}
 }

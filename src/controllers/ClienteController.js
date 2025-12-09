@@ -97,13 +97,13 @@ class ClienteController {
 		return res.status(200).json({ cliente: cliente })
 	}
 
-	async buscarTodos(req, res) {
+	async buscar(req, res) {
 		let clientes = await Cliente.findAll({ order: ["nome_razao_social"] })
 
 		return res.status(200).json({ clientes: clientes })
 	}
 
-	async buscar(req, res) {
+	async buscarUm(req, res) {
 		const { id } = req.params
 		let cliente = await Cliente.findOne({ where: { id } })
 
@@ -147,6 +147,28 @@ class ClienteController {
 			return res.status(200).json({ falha: false, dados: { clientes } })
 		} catch (error) {
 			return res.status(500).json({ falha: true, erro: error })
+		}
+	}
+
+	async buscarTodos(req, res){
+
+		try{
+			const query = req.query
+			let campos = ['id']
+			if(Object.keys(query).includes("campos")){
+				campos = query.campos?.split(",")
+			}
+
+			const clientes = await Cliente.findAll({
+				where: { deletedAt: null },
+				order: ["nome_razao_social"],
+				attributes: [...campos],
+			})
+
+		    return res.status(200).json({ falha: false, dados: { clientes } })
+		}catch(error){
+		    console.log(error)
+		    return res.status(500).json({ falha: true, erro: error})
 		}
 	}
 }

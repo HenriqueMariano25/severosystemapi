@@ -47,6 +47,10 @@ routes.get("/laudos/cliente/busca", LaudoController.buscarEspecificoCliente)
 
 routes.get("/laudo/:id", LaudoController.buscar)
 
+//NOVO
+routes.get("/laudo/:id/simplificado", LaudoController.buscarSimplificado)
+
+
 routes.delete("/laudo/:id", LaudoController.deletar)
 
 routes.get("/laudos/busca", LaudoController.buscarEspecifico)
@@ -54,4 +58,14 @@ routes.get("/laudos/busca", LaudoController.buscarEspecifico)
 routes.post("/laudo/perito/processar", LaudoController.processarLaudo)
 
 routes.get("/laudo/buscar/placa/:placa", LaudoController.buscarPorPlaca)
+
+//IMAGEM
+routes.get("/laudo/:id/imagens_rascunho", LaudoController.buscarImagensRascunhoLaudoId)
+
+//QUESTOES
+routes.get("/laudo/:id/questoes", LaudoController.buscarQuestoesLaudoId)
+
+//RESUMO
+// routes.get("/laudo/:id/resumo", LaudoController.buscarResumoLaudoId)
+
 module.exports = routes
