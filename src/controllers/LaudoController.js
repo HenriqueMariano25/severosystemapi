@@ -313,49 +313,29 @@ class LaudoController {
 
 	async salvarFotos(req, res) {
 		try {
-			let dados = JSON.parse(req.body.data)
+			let dados = req.body
 
-			let { laudo_id, perito_auxiliar_id, perito_id } = dados
+			let { laudo_id, perito_auxiliar_id, perito_id, peca_veiculo } = dados
+
+			const camposParaEditar = {
+				...(perito_auxiliar_id && { perito_auxiliar_id }),
+				...(perito_id && { perito_id }),
+			}
+
+			if(Object.keys(camposParaEditar).length > 0) {
+				await Laudo.update(
+							{ ...camposParaEditar },
+							{
+								where: {
+									id: laudo_id,
+								},
+							},
+						)
+			}
+
 			let img = dados.img
-			let resumo = dados.resumo
-
-			if (resumo.perito_auxiliar) {
-				let perito_auxiliar_id = resumo.perito_auxiliar
-				await Laudo.update(
-					{ perito_auxiliar_id },
-					{
-						where: {
-							id: laudo_id,
-						},
-					},
-				)
-			}
-
-			if (perito_auxiliar_id) {
-				await Laudo.update(
-					{ perito_auxiliar_id },
-					{
-						where: {
-							id: laudo_id,
-						},
-					},
-				)
-			}
-
-			if (perito_id) {
-				await Laudo.update(
-					{ perito_id },
-					{
-						where: {
-							id: laudo_id,
-						},
-					},
-				)
-			}
 
 			const file = req.files[0]
-
-			let peca_veiculo = img.nome
 
 			let extensao
 			if (file.mimetype === "image/jpeg") {
