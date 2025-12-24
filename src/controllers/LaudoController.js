@@ -1482,6 +1482,7 @@ class LaudoController {
 				where: { laudo_id: id },
 				include: {
 					model: Questao,
+					required:true,
 					include: { model: Gravidade, attributes: ["cor", "icone", "descricao"] },
 				},
 				order: [["created_at"]],
